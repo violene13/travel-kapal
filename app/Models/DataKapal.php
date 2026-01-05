@@ -16,9 +16,15 @@ class DataKapal extends Model
         'kapasitas'
     ];
 
-    // Relasi ke Jadwal Pelayaran
+    /** Relasi ke jadwal pelayaran */
     public function jadwal()
     {
-        return $this->hasMany(JadwalPelayaran::class, 'id_kapal');
+        return $this->hasMany(JadwalPelayaran::class, 'id_kapal', 'id_kapal');
+    }
+
+    /** Relasi ke ticketing */
+    public function ticketings()
+    {
+        return $this->hasMany(Ticketing::class, 'id_kapal', 'id_kapal');
     }
 }

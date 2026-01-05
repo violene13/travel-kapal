@@ -7,26 +7,17 @@ use Illuminate\Http\Request;
 
 class DataPelabuhanController extends Controller
 {
-    // =====================
-    // INDEX: Menampilkan daftar pelabuhan
-    // =====================
     public function index()
     {
-        $pelabuhan = DataPelabuhan::all();
-        return view('datapelabuhan.index', compact('pelabuhan'));
+        $dataPelabuhan = DataPelabuhan::all();
+        return view('datapelabuhan.index', compact('dataPelabuhan'));
     }
 
-    // =====================
-    // CREATE: Form tambah pelabuhan
-    // =====================
     public function create()
     {
         return view('datapelabuhan.create');
     }
 
-    // =====================
-    // STORE: Simpan data pelabuhan baru
-    // =====================
     public function store(Request $request)
     {
         $request->validate([
@@ -45,18 +36,12 @@ class DataPelabuhanController extends Controller
             ->with('success', 'Data pelabuhan berhasil ditambahkan!');
     }
 
-    // =====================
-    // EDIT: Form edit pelabuhan
-    // =====================
     public function edit($id)
     {
         $pelabuhan = DataPelabuhan::findOrFail($id);
         return view('datapelabuhan.edit', compact('pelabuhan'));
     }
 
-    // =====================
-    // UPDATE: Update data pelabuhan
-    // =====================
     public function update(Request $request, $id)
     {
         $request->validate([
@@ -66,15 +51,16 @@ class DataPelabuhanController extends Controller
         ]);
 
         $pelabuhan = DataPelabuhan::findOrFail($id);
-        $pelabuhan->update($request->all());
+        $pelabuhan->update([
+            'nama_pelabuhan' => $request->nama_pelabuhan,
+            'lokasi' => $request->lokasi,
+            'fasilitas_pelabuhan' => $request->fasilitas_pelabuhan,
+        ]);
 
         return redirect()->route('datapelabuhan.index')
             ->with('success', 'Pelabuhan berhasil diperbarui.');
     }
 
-    // =====================
-    // DESTROY: Hapus pelabuhan
-    // =====================
     public function destroy($id)
     {
         $pelabuhan = DataPelabuhan::findOrFail($id);
@@ -84,12 +70,9 @@ class DataPelabuhanController extends Controller
             ->with('success', 'Pelabuhan berhasil dihapus.');
     }
 
-    // =====================
-    // EXTRA: Get Tujuan (untuk dropdown AJAX)
-    // =====================
     public function getTujuan($asalId)
     {
-        $tujuan = DataPelabuhan::where('id', '!=', $asalId)->get();
+        $tujuan = DataPelabuhan::where('id_pelabuhan', '!=', $asalId)->get();
         return response()->json($tujuan);
     }
 }

@@ -8,22 +8,101 @@
   <!-- Bootstrap CSS -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
 
-  <!-- Bootstrap Icons -->
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+  <!-- ✅ Bootstrap Icons (versi stabil & pasti muncul) -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
   
   <!-- DataTables CSS -->
   <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap5.min.css">
 
   <style>
+    /* === GLOBAL === */
     body {
       margin: 0;
-      font-family: Arial, sans-serif;
+      font-family: "Poppins", sans-serif;
       background-color: #F4F8FB;
       display: flex;
       min-height: 100vh;
     }
 
-    /* Sidebar */
+    /* === TOPBAR === */
+    .topbar {
+      backdrop-filter: blur(12px);
+      background: linear-gradient(135deg, #018688, #5395b4);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+      color: white;
+      position: fixed;
+      top: 0;
+      left: 250px;
+      right: 0;
+      z-index: 999;
+      padding: 10px 40px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 3px 6px rgba(0, 0, 0, 0.15);
+      transition: background 0.3s ease;
+    }
+
+    .topbar .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .topbar .brand i {
+      font-size: 1.4rem;
+      color: #A7E6FF;
+    }
+
+    .topbar h5 {
+      margin: 0;
+      font-size: 1rem;
+      font-weight: 600;
+    }
+
+    .topbar .right-info {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+    }
+
+    .datetime {
+      font-size: 0.9rem;
+      font-weight: 500;
+      color: #f4fbff;
+      background: rgba(255, 255, 255, 0.15);
+      padding: 6px 14px;
+      border-radius: 20px;
+      box-shadow: inset 0 0 5px rgba(255,255,255,0.25);
+    }
+
+    .greeting {
+      font-size: 0.9rem;
+      color: #fff;
+      opacity: 0.95;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .btn-logout {
+      border: none;
+      border-radius: 25px;
+      font-size: 0.85rem;
+      padding: 6px 16px;
+      background: linear-gradient(135deg, #e7f3fe, #ffffff);
+      color: #003B5C;
+      font-weight: 600;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.15);
+      transition: all 0.3s ease;
+    }
+
+    .btn-logout:hover {
+      background: linear-gradient(135deg, #A1C4FD, #C2E9FB);
+      transform: translateY(-1px);
+    }
+
+    /* === SIDEBAR === */
     .sidebar {
       position: fixed;
       top: 0;
@@ -35,24 +114,20 @@
       display: flex;
       flex-direction: column;
       box-shadow: 2px 0 8px rgba(0,0,0,0.2);
+      z-index: 1000;
     }
 
     .sidebar .logo {
-      text-align: center;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
       padding: 20px 0;
       border-bottom: 1px solid rgba(255,255,255,0.2);
-    }
-
-    .sidebar .logo i {
-      font-size: 32px;
-      margin-bottom: 10px;
-      display: block;
-    }
-
-    .sidebar .logo span {
       font-weight: bold;
-      font-size: 14px;
+      font-size: 16px;
       text-transform: uppercase;
+      letter-spacing: 1px;
     }
 
     .sidebar nav {
@@ -67,205 +142,140 @@
       padding: 12px 20px;
       color: white;
       text-decoration: none;
-      transition: background 0.3s;
+      transition: all 0.3s ease;
     }
 
     .sidebar nav a:hover {
       background-color: #025680;
       border-radius: 6px;
+      transform: translateX(5px);
     }
 
-    .sidebar form {
-      margin: 20px;
-    }
-
-    .sidebar button.logout {
-      width: 100%;
-      padding: 12px 20px;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      color: white;
-      background: none;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-      text-align: left;
-      transition: background 0.3s;
-    }
-
-    .sidebar button.logout:hover {
-      background-color: #025680;
-    }
-
-    /* Main content */
+    /* === MAIN CONTENT === */
     .content {
       margin-left: 250px;
-      flex: 1;
-      padding: 30px;
+      margin-top: 70px;
+      padding: 30px 40px;
+      width: calc(100% - 250px);
+      background-color: #F4F8FB;
+      min-height: 100vh;
     }
 
-    .card {
+    .content-inner {
       background: white;
-      border-radius: 8px;
-      padding: 20px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-      margin-bottom: 20px;
-    }
-
-    /* Table */
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 15px;
-      background: white;
-      border-radius: 8px;
-      overflow: hidden;
+      border-radius: 10px;
+      padding: 25px;
       box-shadow: 0 2px 6px rgba(0,0,0,0.1);
     }
 
-    table th, table td {
-      padding: 12px 15px;
-      border-bottom: 1px solid #eee;
+    /* === RESPONSIVE === */
+    @media (max-width: 992px) {
+      .sidebar { width: 220px; }
+      .topbar { left: 220px; }
+      .content { margin-left: 220px; }
     }
 
-    table th {
-      background: #003B5C;
-      color: white;
-      text-align: left;
-    }
-
-    table tr:hover {
-      background: #f5faff;
-    }
-
-    /* Button */
-    .btn {
-      padding: 6px 12px;
-      font-size: 14px;
-      border-radius: 6px;
-      text-decoration: none;
-      display: inline-block;
-      margin-right: 5px;
-    }
-
-    .btn-edit {
-      background: #1d72b8;
-      color: white;
-    }
-
-    .btn-edit:hover {
-      background: #155d8b;
-    }
-
-    .btn-delete {
-      background: #d9534f;
-      color: white;
-      border: none;
-      cursor: pointer;
-    }
-
-    .btn-delete:hover {
-      background: #b52b27;
-    }
-
-    .btn-add {
-      background: #28a745;
-      color: white;
-    }
-
-    .btn-add:hover {
-      background: #1e7e34;
-    }
-
-    /* DataTables Custom */
-    .dataTables_filter {
-      float: left !important;
-      text-align: left !important;
-      margin-left: 10px;
-    }
-
-    .dataTables_length {
-      float: right !important;
-      margin-right: 10px;
-    }
-
-    table.dataTable th,
-    table.dataTable td {
-      white-space: nowrap;
-      padding: 6px 10px;
-      font-size: 14px;
-    }
-
-    #dataKapalTable thead th {
-      text-align: center !important;
-      vertical-align: middle;
-    }
-
-    /* ✅ Tambahan penting */
-    .form-container {
-      max-width: 600px;
-      margin-left: 40px; /* biar gak nempel sidebar */
-    }
-
-    .dataTables_wrapper .dataTables_length,
-    .dataTables_wrapper .dataTables_filter {
-        float: left !important;
-        text-align: left !important;
-    }
-
-    .dataTables_wrapper .dataTables_filter label {
-        width: 100%;
-    }
-
-    .dataTables_wrapper .dataTables_filter input {
-        margin-left: 0 !important;
-        display: block;
-        width: 200px; /* biar tetap rapi */
+    @media (max-width: 768px) {
+      .sidebar { position: relative; width: 100%; height: auto; }
+      .topbar { left: 0; flex-direction: column; align-items: flex-start; gap: 8px; }
+      .content { margin-left: 0; margin-top: 90px; }
     }
   </style>
 </head>
+
 <body>
+ <!-- === SIDEBAR === -->
+<aside class="sidebar">
+  <div class="logo">
+    <i class="bi bi-ship-fill"></i>
+    <span>ADMIN SYSTEM</span>
+  </div>
 
-  <!-- Sidebar -->
-  <aside class="sidebar">
-    <div class="logo">
-      <i class="bi bi-ship"></i>
-      <span>ADMIN SYSTEM</span>
+  <nav>
+    <a href="{{ route('admin.pelayaran.dashboard') }}">
+      <i class="bi bi-house"></i> Dashboard
+    </a>
+
+    <a href="{{ route('penumpang.penumpangpelayaran.index') }}">
+      <i class="bi bi-person-vcard"></i> Data Penumpang
+    </a>
+    <!-- Tambahkan ini -->
+<a href="{{ route('pemesanan.pemesananpelayaran.index') }}">
+  <i class="bi bi-journal-text"></i> Pemesanan Pelayaran
+</a>
+    <a href="{{ route('jalurpelayaran.index') }}">
+      <i class="bi bi-signpost-split"></i> Jalur Pelayaran
+    </a>
+
+    <!-- ✅ GANTI bi-ship -> bi-boat -->
+    <a href="{{ route('datakapal.index') }}">
+      <i class="bi bi-water"></i> Data Kapal
+    </a>
+
+    <a href="{{ route('datapelabuhan.index') }}">
+      <i class="bi bi-geo-alt"></i> Data Pelabuhan
+    </a>
+
+    <a href="{{ route('jadwalpelayaran.index') }}">
+      <i class="bi bi-calendar-event"></i> Jadwal Pelayaran
+    </a>
+
+    <a href="{{ route('ticketing.index') }}">
+      <i class="bi bi-cash-stack"></i> Ticketing
+    </a>
+
+    <a href="#">
+      <i class="bi bi-graph-up"></i> Laporan
+    </a>
+  </nav>
+</aside>
+
+  <!-- === TOPBAR === -->
+  <nav class="topbar">
+    <div class="brand">
+      <i class="bi bi-compass"></i>
+      <h5>Sistem Informasi Pelayaran</h5>
     </div>
+    <div class="right-info">
+      <div class="datetime" id="datetime"></div>
+      <div class="greeting"><i class="bi bi-person-circle"></i><h5> Halo, Admin</h5></div>
+      <form action="{{ route('logout') }}" method="POST" class="m-0">
+        @csrf
+        <button type="submit" class="btn-logout">
+          <i class="bi bi-box-arrow-right"></i> Logout
+        </button>
+      </form>
+    </div>
+  </nav>
 
-    <nav>
-      <a href="{{ route('admin.pelayaran.dashboard') }}"><i class="bi bi-house"></i> Dashboard</a>
-      <a href="{{ route('jalurpelayaran.index') }}"><i class="bi bi-people"></i> Jalur Pelayaran</a>
-      <a href="{{ route('datakapal.index') }}"><i class="bi bi-ticket-perforated"></i> Data Kapal</a>
-      <a href="{{ route('datapelabuhan.index') }}"><i class="bi bi-arrow-repeat"></i> Data Pelabuhan</a>
-      <a href="{{ route('jadwalpelayaran.index') }}"><i class="bi bi-calendar-event"></i> Jadwal Pelayaran</a>
-      <a href="#"><i class="bi bi-graph-up"></i> Laporan</a>
-    </nav>
-
-    <!-- Logout -->
-    <form action="{{ route('logout') }}" method="POST">
-      @csrf
-      <button type="submit" class="logout">
-        <i class="bi bi-box-arrow-right"></i> Logout
-      </button>
-    </form>
-  </aside>
-
-  <!-- Main Content -->
+  <!-- === MAIN CONTENT === -->
   <main class="content">
-    @yield('content')
+    <div class="content-inner">
+      @yield('content')
+    </div>
   </main>
 
-  <!-- Bootstrap JS -->
+  <!-- === SCRIPT === -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-  
-  <!-- jQuery -->
   <script src="https://code.jquery.com/jquery-3.7.0.js"></script>
-  <!-- DataTables JS -->
   <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
   <script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>
-  
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+
+  <script>
+    function updateDateTime() {
+      const now = new Date();
+      const options = { 
+        weekday: 'long', year: 'numeric', month: 'long', day: 'numeric',
+        hour: '2-digit', minute: '2-digit', second: '2-digit'
+      };
+      document.getElementById('datetime').textContent = now.toLocaleDateString('id-ID', options);
+    }
+    setInterval(updateDateTime, 1000);
+    updateDateTime();
+  </script>
+
   @stack('scripts')
 </body>
 </html>

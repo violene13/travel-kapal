@@ -3,25 +3,24 @@
 @section('title', 'Data Kapal')
 
 @section('content')
-<div class="container mt-3">
-    {{-- Judul Halaman --}}
-    <h3 class="mb-3">Data Kapal</h3>
+<div class="content-wrapper mt-4">
 
-    {{-- Card Box --}}
-    <div class="card shadow-sm">
-        <div class="card-body">
+    {{-- Header + Tombol Tambah --}}
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h3 class="page-title fw-bold">Daftar Data Kapal</h3>
+        <a href="{{ route('datakapal.create') }}" class="btn btn-success shadow-sm">
+            Tambah 
+        </a>
+    </div>
 
-            {{-- Tombol Tambah --}}
-            <div class="mb-3 d-flex justify-content-end">
-                <a href="{{ route('datakapal.create') }}" class="btn btn-success">
-                     Tambah Kapal
-                </a>
-            </div>
+    {{-- Box Tabel --}}
+   <div class="card border-0 rounded-4">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table id="dataKapalTable" class="table table-bordered table-striped text-center align-middle mb-0">
+               <thead class="table-success table-header">
 
-            {{-- Tabel Data Kapal --}}
-            <table id="dataKapalTable" class="table table-bordered table-striped align-middle">
-                <thead class="table-dark">
-                    <tr class="text-center">
+                    <tr>
                         <th>No</th>
                         <th>Nama Kapal</th>
                         <th>Jenis Kapal</th>
@@ -32,18 +31,18 @@
                 <tbody>
                     @forelse ($kapal as $k)
                         <tr>
-                            <td class="text-center">{{ $loop->iteration }}</td>
+                            <td>{{ $loop->iteration }}</td>
                             <td>{{ $k->nama_kapal }}</td>
                             <td>{{ $k->jenis_kapal }}</td>
                             <td>{{ $k->kapasitas }}</td>
-                            <td class="text-center">
+                            <td>
                                 <a href="{{ route('datakapal.edit', $k->id_kapal) }}" class="btn btn-warning btn-sm me-1">
                                     <i class="bi bi-pencil-square"></i> Edit
                                 </a>
-                                <form action="{{ route('datakapal.destroy', $k->id_kapal) }}" method="POST" class="d-inline">
+                                <form action="{{ route('datakapal.destroy', $k->id_kapal) }}" method="POST" class="d-inline" onsubmit="return confirm('Yakin ingin menghapus kapal ini?');">
                                     @csrf
                                     @method('DELETE')
-                                    <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Apakah Anda yakin ingin menghapus data ini?')">
+                                    <button type="submit" class="btn btn-danger btn-sm">
                                         <i class="bi bi-trash"></i> Hapus
                                     </button>
                                 </form>
@@ -66,21 +65,71 @@
         </a>
     </div>
 </div>
-@endsection
 
+{{-- ===================== STYLE KHUSUS HALAMAN ===================== --}}
+<style>
+    /* Posisi konten biar ke kiri tapi tetap ada jarak dari sidebar */
+    .content-wrapper {
+        margin: 0;
+        padding-left: 25px;
+        padding-right: 40px;
+        padding-bottom: 40px;
+        background-color: transparent;
+    }
+
+    /* Judul halaman */
+    .page-title {
+        color: #003B5C;
+        font-weight: 700;
+    }
+
+    /* Card tabel */
+    .card {
+        border-radius: 10px;
+        background-color: #fff;
+        box-shadow: none
+    }
+
+    /* Scroll horizontal hanya di tabel */
+    .table-responsive {
+        overflow-x: auto;
+        width: 100%;
+    }
+
+    /* Jaga teks tetap rapat dan rapi */
+    table td, table th {
+        white-space: nowrap;
+    }
+
+    /* Warna tombol tambah tetap hijau (default Bootstrap) */
+    .btn-success {
+        background-color: #198754 !important;
+        border: none;
+    }
+
+    .btn-success:hover {
+        background-color: #157347 !important;
+    }
+</style>
+
+{{-- ===================== SCRIPT DATATABLE ===================== --}}
 @push('scripts')
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
 <script>
-    $(document).ready(function() {
-        $('#dataKapalTable').DataTable({
-            language: {
-                url: '//cdn.datatables.net/plug-ins/1.13.7/i18n/id.json'
-            },
-            responsive: true,
-            pageLength: 10,
-            lengthMenu: [[10, 25, 50, -1], [10, 25, 50, "Semua"]],
-            order: [[0, "asc"]],
-            dom: '<"row mb-3"<"col-md-12 d-flex justify-content-start gap-3"lf>>rtip'
-        });
+$(document).ready(function() {
+    $('#dataKapalTable').DataTable({
+        scrollX: true, // scroll hanya di tabel
+        autoWidth: false,
+        pageLength: 10,
+        lengthMenu: [10, 25, 50],
+        language: {
+            url: "//cdn.datatables.net/plug-ins/1.13.6/i18n/id.json"
+        },
+        dom: '<"row mb-3"<"col-md-6 d-flex justify-content-start"l><"col-md-6 d-flex justify-content-end"f>>rtip'
     });
+});
 </script>
 @endpush
+@endsection

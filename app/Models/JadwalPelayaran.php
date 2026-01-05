@@ -11,22 +11,16 @@ class JadwalPelayaran extends Model
     public $timestamps = false;
 
     protected $fillable = [
-        'id_kapal',
         'id_jalur',
-        'id_pelabuhan_asal',
-        'id_pelabuhan_tujuan',
+        'id_kapal',
         'tanggal_berangkat',
         'jam_berangkat',
         'jam_tiba',
-        'harga_tiket',
-        'kelas_tiket',
+        'harga',
+        'kelas',
     ];
 
-    // Relasi ke DataKapal
-    public function kapal()
-    {
-        return $this->belongsTo(DataKapal::class, 'id_kapal', 'id_kapal');
-    }
+    /** ======================= RELASI ======================= **/
 
     // Relasi ke Jalur Pelayaran
     public function jalur()
@@ -34,15 +28,54 @@ class JadwalPelayaran extends Model
         return $this->belongsTo(JalurPelayaran::class, 'id_jalur', 'id_jalur');
     }
 
-    // Relasi ke Pelabuhan Asal
-    public function pelabuhanAsal()
+    // Relasi ke Kapal
+    public function kapal()
     {
-        return $this->belongsTo(DataPelabuhan::class, 'id_pelabuhan_asal', 'id_pelabuhan');
+        return $this->belongsTo(DataKapal::class, 'id_kapal', 'id_kapal');
     }
 
-    // Relasi ke Pelabuhan Tujuan
-    public function pelabuhanTujuan()
+    // Relasi dasar ke Ticketing (hanya berdasarkan jalur)
+    public function ticketings()
     {
-        return $this->belongsTo(DataPelabuhan::class, 'id_pelabuhan_tujuan', 'id_pelabuhan');
+        return $this->hasMany(Ticketing::class, 'id_jalur', 'id_jalur');
+    }
+
+    // Ticketing yang sesuai kapal untuk jadwal ini
+    public function ticketingsByKapal()
+    {
+        return $this->hasMany(Ticketing::class, 'id_jalur', 'id_jalur')
+                    ->where('id_kapal', $this->id_kapal);
+    }
+
+    /** ======================= ACCESSOR ======================= **/
+
+    // Aksesor Rute: Asal - Tujuan
+    public function getTujuanAttribute()
+    {
+        $asal   = $this->jalur?->pelabuhanAsal?->lokasi ?? '-';
+        $tujuan = $this->jalur?->pelabuhanTujuan?->lokasi ?? '-';
+
+        return "{$asal} - {$tujuan}";
+    }
+
+    /** ======================= HELPER ======================= **/
+
+    // Ambil harga berdasarkan kelas dari ticketing yang sesuai kapal
+    public function getHargaByKelas($kelas)
+    {
+        $ticket = $this->ticketingsByKapal()
+                       ->where('kelas', $kelas)
+                       ->first();
+
+        return $ticket ? $ticket->harga : null;
+    }
+
+    // Ambil daftar kelas tersedia untuk kapal pada jalur ini
+    public function getAvailableKelas()
+    {
+        return $this->ticketingsByKapal()
+                    ->select('kelas')
+                    ->distinct()
+                    ->pluck('kelas');
     }
 }

@@ -12,13 +12,13 @@
 
             {{-- Pilih Pelabuhan Asal --}}
             <div class="mb-3">
-                <label class="form-label">Pelabuhan Asal</label>
+                <label class="form-label">Lokasi Asal</label>
                 <select name="id_pelabuhan_asal" class="form-select" required>
-                    <option value="">-- Pilih Pelabuhan Asal --</option>
+                    <option value="">-- Pilih Lokasi Asal --</option>
                     @foreach ($pelabuhan as $p)
                         <option value="{{ $p->id_pelabuhan }}" 
                             {{ $jalur->id_pelabuhan_asal == $p->id_pelabuhan ? 'selected' : '' }}>
-                            {{ $p->nama_pelabuhan }}
+                            {{ $p->lokasi }}
                         </option>
                     @endforeach
                 </select>
@@ -26,13 +26,13 @@
 
             {{-- Pilih Pelabuhan Tujuan --}}
             <div class="mb-3">
-                <label class="form-label">Pelabuhan Tujuan</label>
+                <label class="form-label">Lokasi Tujuan</label>
                 <select name="id_pelabuhan_tujuan" class="form-select" required>
-                    <option value="">-- Pilih Pelabuhan Tujuan --</option>
+                    <option value="">-- Pilih Lokasi Tujuan --</option>
                     @foreach ($pelabuhan as $p)
                         <option value="{{ $p->id_pelabuhan }}" 
                             {{ $jalur->id_pelabuhan_tujuan == $p->id_pelabuhan ? 'selected' : '' }}>
-                            {{ $p->nama_pelabuhan }}
+                            {{ $p->lokasi }}
                         </option>
                     @endforeach
                 </select>

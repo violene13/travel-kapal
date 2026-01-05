@@ -8,7 +8,7 @@
 
     <div class="card shadow-sm">
         <div class="card-body">
-            <form action="{{ route('datakapal.store') }}" method="POST">
+            <form action="{{ route('datakapal.store') }}" method="POST"id="formSimpan">
                 @csrf
 
                 <div class="mb-3">
@@ -42,12 +42,40 @@
                     @enderror
                 </div>
 
-                <div class="d-flex justify-content-between">
-                    <a href="{{ route('datakapal.index') }}" class="btn btn-primary btn-sm">Kembali</a>
-                    <button type="submit" class="btn btn-success">Simpan</button>
-                </div>
+             <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-success" id="btnSimpan">Simpan</button>
+                <a href="{{ route('datakapal.index') }}" class="btn btn-primary btn-sm">Kembali</a>
+    
             </form>
         </div>
     </div>
 </div>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+
+    const btn = document.getElementById('btnSimpan');
+    const form = document.getElementById('formSimpan');
+
+    btn.addEventListener('click', function (e) {
+        e.preventDefault();
+
+        Swal.fire({
+            title: 'Yakin menyimpan data?',
+            text: 'Pastikan data Kapal sudah benar',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Ya, Simpan',
+            cancelButtonText: 'Batal',
+            confirmButtonColor: '#0d6efd',
+            cancelButtonColor: '#6c757d'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                form.submit();
+            }
+        });
+    });
+
+});
+</script>
+
 @endsection

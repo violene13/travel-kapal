@@ -2,97 +2,143 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Http\Request;
 use App\Models\JadwalPelayaran;
+use App\Models\JalurPelayaran;
 use App\Models\DataKapal;
 use App\Models\DataPelabuhan;
-use Illuminate\Http\Request;
+use App\Models\Ticketing;
 
 class JadwalPelayaranController extends Controller
 {
-    /**
-     * Tampilkan daftar semua jadwal pelayaran
-     */
+    // INDEX (Admin)
     public function index()
     {
-        $jadwal = JadwalPelayaran::with(['kapal', 'asalPelabuhan', 'tujuanPelabuhan'])->get();
+        $jadwal = JadwalPelayaran::with([
+            'jalur.pelabuhanAsal',
+            'jalur.pelabuhanTujuan',
+            'kapal',
+            'ticketings'
+        ])->get();
+
         return view('jadwalpelayaran.index', compact('jadwal'));
     }
 
-    /**
-     * Form tambah jadwal
-     */
+    // CREATE
     public function create()
     {
+        $jalur = JalurPelayaran::with(['pelabuhanAsal', 'pelabuhanTujuan'])->get();
         $kapal = DataKapal::all();
-        $pelabuhan = DataPelabuhan::all(); // untuk dropdown asal & tujuan
-        return view('jadwalpelayaran.create', compact('kapal', 'pelabuhan'));
+
+        return view('jadwalpelayaran.create', compact('jalur', 'kapal'));
     }
 
-    /**
-     * Simpan jadwal baru
-     */
+    // STORE
     public function store(Request $request)
     {
         $request->validate([
-            'id_kapal'           => 'required|exists:data_kapal,id_kapal',
-            'id_pelabuhan_asal'  => 'required|exists:data_pelabuhan,id',
-            'id_pelabuhan_tujuan'=> 'required|exists:data_pelabuhan,id|different:id_pelabuhan_asal',
-            'tanggal_berangkat'  => 'required|date',
-            'jam_berangkat'      => 'required',
-            'jam_tiba'           => 'required',
-            'harga_tiket'        => 'required|numeric',
-            'kelas_tiket'        => 'required|string|max:100',
+            'id_jalur' => 'required|exists:jalur_pelayaran,id_jalur',
+            'id_kapal' => 'required|exists:data_kapal,id_kapal',
+            'tanggal_berangkat' => 'required|date',
+            'jam_berangkat' => 'required',
+            'jam_tiba' => 'required',
+            'kelas' => 'required|string',
+            'harga' => 'required|numeric|min:0',
         ]);
 
-        JadwalPelayaran::create($request->all());
+        JadwalPelayaran::create($request->only([
+            'id_jalur',
+            'id_kapal',
+            'tanggal_berangkat',
+            'jam_berangkat',
+            'jam_tiba',
+            'kelas',
+            'harga'
+        ]));
 
         return redirect()->route('jadwalpelayaran.index')
-            ->with('success', 'Jadwal berhasil ditambahkan.');
+                        ->with('success', 'Jadwal pelayaran berhasil ditambahkan.');
     }
 
-    /**
-     * Form edit jadwal
-     */
-    public function edit($id)
+    // EDIT
+    public function edit($id_jadwal)
     {
-        $jadwal = JadwalPelayaran::findOrFail($id);
+        $jadwal = JadwalPelayaran::findOrFail($id_jadwal);
+        $jalur = JalurPelayaran::with(['pelabuhanAsal', 'pelabuhanTujuan'])->get();
         $kapal = DataKapal::all();
-        $pelabuhan = DataPelabuhan::all();
-        return view('jadwalpelayaran.edit', compact('jadwal', 'kapal', 'pelabuhan'));
+
+        $kelas = Ticketing::where('id_jalur', $jadwal->id_jalur)
+                        ->where('id_kapal', $jadwal->id_kapal)
+                        ->distinct()
+                        ->pluck('kelas');
+
+        return view('jadwalpelayaran.edit', compact('jadwal', 'jalur', 'kapal', 'kelas'));
     }
 
-    /**
-     * Update jadwal
-     */
-    public function update(Request $request, $id)
+    // UPDATE
+    public function update(Request $request, $id_jadwal)
     {
         $request->validate([
-            'id_kapal'           => 'required|exists:data_kapal,id_kapal',
-            'id_pelabuhan_asal'  => 'required|exists:data_pelabuhan,id',
-            'id_pelabuhan_tujuan'=> 'required|exists:data_pelabuhan,id|different:id_pelabuhan_asal',
-            'tanggal_berangkat'  => 'required|date',
-            'jam_berangkat'      => 'required',
-            'jam_tiba'           => 'required',
-            'harga_tiket'        => 'required|numeric',
-            'kelas_tiket'        => 'required|string|max:100',
+            'id_jalur' => 'required|exists:jalur_pelayaran,id_jalur',
+            'id_kapal' => 'required|exists:data_kapal,id_kapal',
+            'tanggal_berangkat' => 'required|date',
+            'jam_berangkat' => 'required',
+            'jam_tiba' => 'required',
+            'kelas' => 'required|string',
+            'harga' => 'required|numeric|min:0',
         ]);
 
-        $jadwal = JadwalPelayaran::findOrFail($id);
-        $jadwal->update($request->all());
+        $jadwal = JadwalPelayaran::findOrFail($id_jadwal);
+
+        $jadwal->update($request->only([
+            'id_jalur',
+            'id_kapal',
+            'tanggal_berangkat',
+            'jam_berangkat',
+            'jam_tiba',
+            'kelas',
+            'harga'
+        ]));
 
         return redirect()->route('jadwalpelayaran.index')
-            ->with('success', 'Jadwal berhasil diperbarui.');
+                        ->with('success', 'Jadwal pelayaran berhasil diperbarui.');
     }
 
-    /**
-     * Hapus jadwal
-     */
-    public function destroy($id)
+    // DESTROY
+    public function destroy($id_jadwal)
     {
-        $jadwal = JadwalPelayaran::findOrFail($id);
+        $jadwal = JadwalPelayaran::findOrFail($id_jadwal);
         $jadwal->delete();
 
         return redirect()->route('jadwalpelayaran.index')
-            ->with('success', 'Jadwal berhasil dihapus.');
+                        ->with('success', 'Jadwal pelayaran berhasil dihapus.');
+    }
+
+    // AJAX GET KELAS
+    public function getKelas($id_jalur, Request $request)
+    {
+        $kapalId = $request->query('id_kapal');
+
+        $kelas = Ticketing::where('id_jalur', $id_jalur)
+                        ->when($kapalId, fn($q) => $q->where('id_kapal', $kapalId))
+                        ->distinct()
+                        ->pluck('kelas');
+
+        return response()->json(['kelas' => $kelas]);
+    }
+
+    // AJAX GET HARGA
+    public function getHarga($id_jalur, $kelas, Request $request)
+    {
+        $kapalId = $request->query('id_kapal');
+
+        $ticket = Ticketing::where('id_jalur', $id_jalur)
+                        ->where('kelas', $kelas)
+                        ->when($kapalId, fn($q) => $q->where('id_kapal', $kapalId))
+                        ->first();
+
+        return response()->json([
+            'harga' => (float) ($ticket->harga ?? 0)
+        ]);
     }
 }

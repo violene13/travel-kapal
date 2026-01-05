@@ -1,257 +1,191 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Dashboard Admin</title>
+@extends('layouts.admintravel')
 
-  <!-- Bootstrap Icons -->
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+@section('title', 'Dashboard Admin')
 
-  <style>
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      background-color: #F4F8FB;
-      display: flex;
-      min-height: 100vh;
-    }
+@section('content')
+<style>
+  body {
+    background-color: #f7f9fc;
+  }
 
-    /* Sidebar */
-    .sidebar {
-      width: 250px;
-      background-color: #003B5C;
-      color: white;
-      display: flex;
-      flex-direction: column;
-      min-height: 100vh;
-      box-shadow: 2px 0 8px rgba(0,0,0,0.2);
-    }
+  .dashboard-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 35px;
+    background: linear-gradient(135deg, #7dd3fc, #a78bfa);
+    color: #fff;
+    padding: 30px 40px;
+    border-radius: 20px;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+  }
 
-    .sidebar .logo {
-      text-align: center;
-      padding: 20px 0;
-      border-bottom: 1px solid rgba(255,255,255,0.2);
-    }
+  .dashboard-header h1 {
+    margin: 0;
+    font-size: 2rem;
+    font-weight: 700;
+  }
 
-    .sidebar .logo i {
-      font-size: 32px;
-      margin-bottom: 10px;
-      display: block;
-    }
+  .dashboard-header p {
+    margin: 8px 0 0;
+    font-size: 1.1rem;
+    opacity: 0.9;
+  }
 
-    .sidebar .logo span {
-      font-weight: bold;
-      font-size: 14px;
-      text-transform: uppercase;
-    }
+  .dashboard-header img {
+    width: 120px;
+    opacity: 0.95;
+  }
 
-    .sidebar nav {
-      flex: 1;
-      padding: 20px 0;
-    }
+  /* grid ringkasan kecil */
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 20px;
+    margin-top: 10px;
+  }
 
-    .sidebar nav a {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 12px 20px;
-      color: white;
-      text-decoration: none;
-      transition: background 0.3s;
-    }
+  .card-small {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 15px 20px;
+    border-radius: 15px;
+    background: linear-gradient(135deg, #ecfeff, #f5f3ff);
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+    border: 1px solid #e5e7eb;
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+  }
 
-    .sidebar nav a:hover {
-      background-color: #025680;
-      border-radius: 6px;
-    }
+  .card-small:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 6px 14px rgba(0, 0, 0, 0.08);
+  }
 
-    .sidebar form {
-      margin: 20px;
-    }
+  .card-small i {
+    font-size: 2rem;
+    color: #6366f1;
+    background: rgba(99, 102, 241, 0.1);
+    padding: 10px;
+    border-radius: 10px;
+  }
 
-    .sidebar button.logout {
-      width: 100%;
-      padding: 12px 20px;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      color: white;
-      background: none;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-      text-align: left;
-      transition: background 0.3s;
-    }
+  .card-small p {
+    margin: 0;
+    color: #374151;
+  }
 
-    .sidebar button.logout:hover {
-      background-color: #025680;
-    }
+  .value {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #1e3a8a;
+  }
 
-    /* Main content */
-    .content {
-      flex: 1;
-      padding: 30px;
-    }
+  .charts-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    gap: 25px;
+    margin-top: 40px;
+  }
 
-    .content h1 {
-      color: #123c7a;
-      margin: 0;
-    }
+  .chart-card {
+    background: white;
+    border-radius: 16px;
+    padding: 25px;
+    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.07);
+  }
 
-    .content p {
-      margin-top: 5px;
-      color: #1d4e89;
-    }
+  .chart-card h3 {
+    margin-bottom: 15px;
+    color: #374151;
+    text-align: center;
+  }
+</style>
 
-    .card {
-      background: white;
-      border-radius: 8px;
-      padding: 20px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-      margin-bottom: 20px;
-    }
-
-    .grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 20px;
-    }
-
-    .card-small {
-      display: flex;
-      align-items: center;
-      gap: 15px;
-    }
-
-    .card-small i {
-      font-size: 28px;
-      color: #123c7a;
-    }
-
-    .card-small p {
-      margin: 0;
-    }
-
-    .card-small .value {
-      font-weight: bold;
-      font-size: 20px;
-      color: #123c7a;
-    }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-    }
-
-    table th, table td {
-      padding: 8px;
-      border-bottom: 1px solid #ddd;
-    }
-
-    table th {
-      text-align: left;
-    }
-
-    table tr:hover {
-      background: #f9f9f9;
-    }
-  </style>
-</head>
-<body>
-
-  <!-- Sidebar -->
-  <aside class="sidebar">
-    <div class="logo">
-      <i class="bi bi-ship"></i>
-      <span>ADMIN SYSTEM</span>
-    </div>
-
-    <nav>
-      <a href="{{ route('dashboard') }}"><i class="bi bi-house"></i> Dashboard</a>
-      <a href="{{ route('penumpang.index') }}"><i class="bi bi-people"></i> Data Penumpang</a>
-      <a href="{{ route('pemesanan.index') }}"><i class="bi bi-ticket-perforated"></i> Pemesanan</a>
-      <a href="#"><i class="bi bi-arrow-repeat"></i> Perubahan & Pembatalan</a>
-      <a href="#"><i class="bi bi-graph-up"></i> Laporan</a>
-    </nav>
-
-    <!-- Logout pakai form -->
-    <form action="{{ route('logout') }}" method="POST">
-      @csrf
-      <button type="submit" class="logout">
-        <i class="bi bi-box-arrow-right"></i> Logout <span style="padding: 15px; "></span>
-      </button>
-    </form>
-  </aside>
-
-  <!-- Main Content -->
-  <main class="content">
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
-      <div>
-        <h1>WELCOME ABOARD</h1> <br>
-        <p>Selamat Bekerja!</p>
-      </div>
-      <img src="{{ asset('images/ship.png') }}" alt="Ship Illustration" style="width:150px;">
-    </div>
-
-   <div class="card">
-  <h2>Aktivitas Terbaru</h2>
-  <table>
-    <thead>
-      <tr>
-        <th>Jenis</th>
-        <th>Detail</th>
-        <th>Tanggal</th>
-      </tr>
-    </thead>
-    <tbody>
-      @forelse ($pemesanan as $p)
-        <tr>
-          <td>Pemesanan</td>
-          <td>{{ $p->id_pemesanan }} - {{ $p->nama_penumpang ?? 'N/A' }}</td>
-          <td>
-            @if ($p->created_at)
-              {{ $p->created_at->format('Y-m-d H:i') }}
-            @elseif (!empty($p->tanggal_pemesanan))
-              {{ $p->tanggal_pemesanan }}
-            @else
-              -
-            @endif
-          </td>
-        </tr>
-      @empty
-        <tr>
-          <td colspan="3" style="text-align:center; color:#888; padding: 12px;">
-            Belum ada aktivitas
-          </td>
-        </tr>
-      @endforelse
-    </tbody>
-  </table>
+<div class="dashboard-header">
+  <div>
+    <h1>Selamat Datang di Dashboard!</h1>
+    <p>Semoga harimu menyenangkan dan produktif 🚢</p>
+  </div>
+  <img src="{{ asset('images/ship.png') }}" alt="">
 </div>
 
+{{-- Hapus bagian Ringkasan Sistem --}}
 
-    <div class="grid">
-      <div class="card card-small">
-        <i class="bi bi-ticket-perforated"></i>
-        <div>
-          <p>Pemesanan</p>
-          <p class="value">{{ $jumlahPemesanan }}</p>
-        </div>
-      </div>
-
-      <div class="card card-small">
-        <i class="bi bi-people"></i>
-        <div>
-          <p>Data Penumpang</p>
-          <p class="value">{{ $jumlahPenumpang }}</p>
-        </div>
-      </div>
+<div class="grid">
+  <div class="card-small">
+    <i class="bi bi-ticket-perforated"></i>
+    <div>
+      <p>Pemesanan</p>
+      <p class="value">{{ $jumlahPemesanan }}</p>
     </div>
-  </main>
+  </div>
 
-</body>
-</html>
+  <div class="card-small">
+    <i class="bi bi-people"></i>
+    <div>
+      <p>Data Penumpang</p>
+      <p class="value">{{ $jumlahPenumpang }}</p>
+    </div>
+  </div>
+</div>
 
-BLADE DASHBOARD
+<div class="charts-container">
+  <div class="chart-card">
+    <h3>Grafik Pemesanan per Bulan</h3>
+    <canvas id="chartPemesanan"></canvas>
+  </div>
+
+  <div class="chart-card">
+    <h3>Grafik Penumpang per Bulan</h3>
+    <canvas id="chartPenumpang"></canvas>
+  </div>
+</div>
+
+<!-- Tambahkan Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+  // Grafik Pemesanan
+  new Chart(document.getElementById('chartPemesanan'), {
+    type: 'line',
+    data: {
+      labels: {!! json_encode($bulanPemesanan ?? ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun']) !!},
+      datasets: [{
+        label: 'Jumlah Pemesanan',
+        data: {!! json_encode($dataPemesanan ?? [4, 6, 8, 10, 7, 12]) !!},
+        borderColor: '#6366f1',
+        backgroundColor: 'rgba(99,102,241,0.2)',
+        fill: true,
+        tension: 0.3,
+        borderWidth: 2
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: { legend: { display: false } },
+      scales: { y: { beginAtZero: true } }
+    }
+  });
+
+  // Grafik Penumpang
+  new Chart(document.getElementById('chartPenumpang'), {
+    type: 'bar',
+    data: {
+      labels: {!! json_encode($bulanPenumpang ?? ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun']) !!},
+      datasets: [{
+        label: 'Jumlah Penumpang',
+        data: {!! json_encode($dataPenumpang ?? [3, 5, 9, 6, 8, 10]) !!},
+        backgroundColor: 'rgba(14,165,233,0.4)',
+        borderColor: '#0ea5e9',
+        borderWidth: 1.5,
+        borderRadius: 5
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: { legend: { display: false } },
+      scales: { y: { beginAtZero: true } }
+    }
+  });
+</script>
+@endsection

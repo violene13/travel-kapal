@@ -9,8 +9,9 @@ class AdminAuth
 {
     public function handle(Request $request, Closure $next)
     {
+        // Jika session admin tidak ada, arahkan ke halaman login umum
         if (!$request->session()->has('admin_id')) {
-            return redirect()->route('admin.login.form');
+            return redirect()->route('login');
         }
 
         return $next($request);

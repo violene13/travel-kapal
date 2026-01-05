@@ -6,156 +6,195 @@ use App\Models\Pemesanan;
 use App\Models\Penumpang;
 use App\Models\JadwalPelayaran;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 
 class PemesananController extends Controller
 {
-    /**
-     * Form tambah pemesanan baru
-     */
-    public function create()
-    {
-        $jadwals = JadwalPelayaran::with(['kapal', 'jalur.pelabuhanAsal', 'jalur.pelabuhanTujuan'])
-            ->where('tanggal_berangkat', '>', now())
-            ->orderBy('tanggal_berangkat')
-            ->get();
-        
-        return view('pemesanan.create', compact('jadwals'));
-    }
-
-    /**
-     * Simpan pemesanan baru
-     */
-    public function store(Request $request)
-    {
-        $request->validate([
-            'jadwal_id' => 'required|exists:jadwal_pelayaran,id_jadwal',
-            'penumpang' => 'required|array|min:1',
-            'penumpang.*.nama_penumpang' => 'required|string|max:255',
-            'penumpang.*.no_hp' => 'required|string|max:15',
-            'penumpang.*.alamat' => 'required|string',
-            'penumpang.*.jenis_identitas' => 'required|in:KTP,SIM,Passport',
-            'penumpang.*.no_identitas' => 'required|string|max:20',
-        ]);
-
-        DB::beginTransaction();
-        try {
-            foreach ($request->penumpang as $dataPenumpang) {
-                $penumpang = Penumpang::create($dataPenumpang);
-
-                Pemesanan::create([
-                    'id_jadwal' => $request->jadwal_id,
-                    'id_penumpang' => $penumpang->id_penumpang,
-                    'tanggal_pesan' => now(), // pastikan field di DB = tanggal_pesan
-                    'status' => 'pending',   // pastikan field di DB = status
-                ]);
-            }
-
-            DB::commit();
-            return redirect()->route('pemesanan.index')
-                ->with('success', 'Pemesanan berhasil dibuat!');
-        } catch (\Exception $e) {
-            DB::rollBack();
-            return back()->with('error', 'Terjadi kesalahan saat menyimpan pemesanan: ' . $e->getMessage())
-                ->withInput();
-        }
-    }
-
-    /**
-     * Daftar semua pemesanan
-     */
+    // ========================================================================
+    //  SECTION 1 — ADMIN TRAVEL (LISTING)
+    // ========================================================================
     public function index(Request $request)
     {
-        $search = $request->input('search');
+        $this->validateTravel();
 
-        $query = Pemesanan::with([
-            'penumpang',
-            'jadwal.kapal',
-            'jadwal.jalur.pelabuhanAsal',
-            'jadwal.jalur.pelabuhanTujuan',
-            'pembayaran'
-        ]);
+        $query = Pemesanan::with(['penumpang', 'jadwal.kapal', 'jadwal.jalur'])
+            ->where('id_admin_travel', Auth::id());
 
-        if ($search) {
-            $query->whereHas('penumpang', function ($q) use ($search) {
-                $q->where('nama_penumpang', 'like', "%{$search}%")
-                  ->orWhere('no_hp', 'like', "%{$search}%");
-            })
-            ->orWhereHas('jadwal.kapal', function ($q) use ($search) {
-                $q->where('nama_kapal', 'like', "%{$search}%");
-            })
-            ->orWhereHas('jadwal.jalur.pelabuhanAsal', function ($q) use ($search) {
-                $q->where('lokasi', 'like', "%{$search}%");
-            })
-            ->orWhereHas('jadwal.jalur.pelabuhanTujuan', function ($q) use ($search) {
-                $q->where('lokasi', 'like', "%{$search}%");
+        if ($request->search) {
+            $query->whereHas('penumpang', function ($q) use ($request) {
+                $q->where('nama_penumpang', 'like', "%{$request->search}%")
+                  ->orWhere('no_hp', 'like', "%{$request->search}%");
             });
         }
 
-        $pemesanan = $query->paginate(15);
+        $pemesanan = $query->orderByDesc('id_pemesanan')->paginate(10);
 
-        return view('pemesanan.index', compact('pemesanan'));
+        return view($this->viewPath() . '.index', compact('pemesanan'));
     }
 
-    /**
-     * Detail pemesanan
-     */
-    public function show($id)
+    // ========================================================================
+    //  SECTION 2 — CREATE / STORE
+    // ========================================================================
+    public function create()
     {
-        $pemesanan = Pemesanan::with([
-            'penumpang',
-            'jadwal.kapal',
-            'jadwal.jalur.pelabuhanAsal',
-            'jadwal.jalur.pelabuhanTujuan',
-            'pembayaran'
-        ])->findOrFail($id);
+        $this->validateTravel();
 
-        return view('pemesanan.show', compact('pemesanan'));
+        $jadwals = JadwalPelayaran::with(['kapal', 'jalur'])
+            ->orderBy('tanggal_berangkat', 'asc')
+            ->get();
+
+        return view($this->viewPath() . '.create', compact('jadwals'));
     }
 
-    /**
-     * Form edit pemesanan
-     */
-    public function edit($id)
+    public function store(Request $request)
     {
-        $pemesanan = Pemesanan::with(['penumpang', 'jadwal'])->findOrFail($id);
-        $jadwals = JadwalPelayaran::with(['kapal', 'jalur.pelabuhanAsal', 'jalur.pelabuhanTujuan'])->get();
+        $this->validateTravel();
 
-        // daftar status pemesanan
-        $statusList = ['pending', 'confirmed', 'cancelled'];
-
-        return view('pemesanan.edit', compact('pemesanan', 'jadwals', 'statusList'));
-    }
-
-    /**
-     * Update pemesanan
-     */
-    public function update(Request $request, $id)
-    {
         $request->validate([
-            'jadwal_id' => 'required|exists:jadwal_pelayaran,id_jadwal',
-            'status' => 'required|in:pending,confirmed,cancelled',
+            'id_jadwal' => 'required|exists:jadwal_pelayaran,id_jadwal',
+            'penumpang.nama_penumpang' => 'required|string|max:255',
+            'penumpang.no_hp' => 'required',
         ]);
 
-        $pemesanan = Pemesanan::findOrFail($id);
-        $pemesanan->update([
-            'id_jadwal' => $request->jadwal_id,
-            'status' => $request->status,
+        $penumpang = Penumpang::firstOrCreate(
+            ['nama_penumpang' => $request->penumpang['nama_penumpang']],
+            [
+                'no_hp' => $request->penumpang['no_hp'],
+                'no_ktp' => $request->penumpang['no_ktp'] ?? '-',
+                'email' => $request->penumpang['email'] ?? null,
+                'alamat' => $request->penumpang['alamat'] ?? null,
+                'gender' => $request->penumpang['gender'] ?? null,
+                'tanggal_lahir' => $request->penumpang['tanggal_lahir'] ?? null,
+            ]
+        );
+
+        Pemesanan::create([
+            'id_jadwal' => $request->id_jadwal,
+            'id_penumpang' => $penumpang->id_penumpang,
+            'id_admin_travel' => Auth::id(),
+            'tanggal_pesan' => now(),
+            'status' => 'Pending',
         ]);
 
-        return redirect()->route('pemesanan.index')
-            ->with('success', 'Pemesanan berhasil diperbarui!');
+        return redirect()->route('pemesanan.pemesanantravel.index')
+            ->with('success', 'Pemesanan berhasil dibuat!');
     }
 
-    /**
-     * Hapus pemesanan
-     */
+    // ========================================================================
+    //  SECTION 3 — EDIT / UPDATE / DELETE
+    // ========================================================================
+   public function edit($id)
+{
+    $this->validateTravel();
+
+    $pemesanan = Pemesanan::with(['jadwal', 'penumpang'])
+        ->where('id_pemesanan', $id)
+        ->firstOrFail();
+
+    $jadwals = JadwalPelayaran::with(['kapal', 'jalur'])->get();
+    $penumpang = Penumpang::all();
+
+    return view($this->viewPath() . '.edit', compact('pemesanan', 'jadwals', 'penumpang'));
+}
+
+
+  public function update(Request $request, $id)
+{
+    $this->validateTravel();
+
+    $request->validate([
+        'id_penumpang' => 'required|exists:penumpang,id_penumpang',
+        'id_jadwal'    => 'required|exists:jadwal_pelayaran,id_jadwal',
+        'status'       => 'required|in:Pending,Confirmed,Cancelled',
+        'tanggal_pesan'=> 'required|date'
+    ]);
+
+    $pemesanan = Pemesanan::where('id_pemesanan', $id)->firstOrFail();
+
+    $pemesanan->update([
+        'id_penumpang'  => $request->id_penumpang,
+        'id_jadwal'     => $request->id_jadwal,
+        'tanggal_pesan' => $request->tanggal_pesan,
+        'status'        => $request->status,
+    ]);
+
+    return redirect()
+        ->route('pemesanan.pemesanantravel.index')
+        ->with('success', 'Pemesanan berhasil diperbarui!');
+}
+
+
     public function destroy($id)
     {
-        $pemesanan = Pemesanan::findOrFail($id);
-        $pemesanan->delete();
+        $this->validateTravel();
 
-        return redirect()->route('pemesanan.index')
+        Pemesanan::findOrFail($id)->delete();
+
+        return redirect()->route('pemesanan.pemesanantravel.index')
             ->with('success', 'Data berhasil dihapus!');
     }
+
+    // ========================================================================
+    //  SECTION 4 — UPDATE STATUS (TRAVEL & PELAYARAN)
+    // ========================================================================
+    public function updateStatus(Request $request, $id)
+    {
+        $request->validate([
+            'status' => 'required|in:Pending,Confirmed,Cancelled'
+        ]);
+
+        $user = Auth::user();
+        if (!in_array($user->role, ['admin_travel', 'admin_pelayaran'])) {
+            return back()->with('error', 'Akses ditolak!');
+        }
+
+        Pemesanan::findOrFail($id)->update([
+            'status' => $request->status
+        ]);
+
+        return back()->with('success', 'Status berhasil diperbarui!');
+    }
+
+    // ========================================================================
+    //  SECTION 5 — AJAX CARI PENUMPANG (Travel & Pelayaran)
+    // ========================================================================
+    public function getPenumpangByName(Request $request)
+    {
+        $penumpang = Penumpang::where('nama_penumpang', 'LIKE', "%$request->nama%")->first();
+
+        if (!$penumpang) {
+            return response()->json(['error' => 'Penumpang tidak ditemukan']);
+        }
+
+        return response()->json($penumpang);
+    }
+
+    // ========================================================================
+    //  HELPER — VALIDASI ROLE & VIEW PATH
+    // ========================================================================
+    private function validateTravel()
+    {
+        if (Auth::user()->role !== 'admin_travel') {
+            abort(403, 'Akses ditolak (travel only)');
+        }
+    }
+
+    private function viewPath()
+    {
+        return 'pemesanan.pemesanantravel';
+    }
+
+    //SHOW METHOD//
+    public function show($id)
+{
+    $pemesanan = \App\Models\Pemesanan::with([
+        'penumpang',
+        'jadwal.kapal',
+        'jadwal.jalur.pelabuhanAsal',
+        'jadwal.jalur.pelabuhanTujuan'
+    ])->findOrFail($id);
+
+    return view('pemesanan.pemesanantravel.show', compact('pemesanan'));
+}
+
 }

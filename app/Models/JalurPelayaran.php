@@ -17,37 +17,35 @@ class JalurPelayaran extends Model
         'jarak',
     ];
 
-    /**
-     * Relasi ke pelabuhan asal
-     */
+    /** Relasi ke pelabuhan asal */
     public function pelabuhanAsal()
     {
         return $this->belongsTo(DataPelabuhan::class, 'id_pelabuhan_asal', 'id_pelabuhan');
     }
 
-    /**
-     * Relasi ke pelabuhan tujuan
-     */
+    /** Relasi ke pelabuhan tujuan */
     public function pelabuhanTujuan()
     {
         return $this->belongsTo(DataPelabuhan::class, 'id_pelabuhan_tujuan', 'id_pelabuhan');
     }
 
-    /**
-     * Relasi ke jadwal pelayaran
-     */
+    /** Relasi ke jadwal pelayaran */
     public function jadwal()
     {
         return $this->hasMany(JadwalPelayaran::class, 'id_jalur', 'id_jalur');
     }
 
-    /**
-     * Accessor untuk menampilkan rute (Asal → Tujuan)
-     */
+    /** Relasi ke ticketing */
+    public function ticketings()
+    {
+        return $this->hasMany(Ticketing::class, 'id_jalur', 'id_jalur');
+    }
+
+    /** Accessor untuk menampilkan rute (Asal → Tujuan) */
     public function getRuteAttribute()
     {
-        $asal = $this->pelabuhanAsal ? $this->pelabuhanAsal->lokasi : '-';
-        $tujuan = $this->pelabuhanTujuan ? $this->pelabuhanTujuan->lokasi : '-';
-        return $asal . ' → ' . $tujuan;
+        $asal = $this->pelabuhanAsal?->lokasi ?? '-';
+        $tujuan = $this->pelabuhanTujuan?->lokasi ?? '-';
+        return "{$asal} → {$tujuan}";
     }
 }
