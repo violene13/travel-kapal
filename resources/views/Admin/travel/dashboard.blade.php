@@ -107,10 +107,8 @@
     <h1>Selamat Datang di Dashboard!</h1>
     <p>Semoga harimu menyenangkan dan produktif 🚢</p>
   </div>
-  <img src="{{ asset('images/ship.png') }}" alt="">
+  
 </div>
-
-{{-- Hapus bagian Ringkasan Sistem --}}
 
 <div class="grid">
   <div class="card-small">
@@ -142,7 +140,6 @@
   </div>
 </div>
 
-<!-- Tambahkan Chart.js -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
   // Grafik Pemesanan

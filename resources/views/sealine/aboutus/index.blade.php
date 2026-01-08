@@ -26,7 +26,7 @@
 
   .about-section {
     background: #fff;
-    padding: 70px 15px; /* tambahkan padding kanan kiri agar tidak mepet */
+    padding: 70px 15px; 
   }
   .about-section .row {
     align-items: center;
@@ -71,7 +71,7 @@
 
   .values {
     background: #f8fafc;
-    padding: 80px 20px; /* tambahkan jarak kiri kanan juga di sini */
+    padding: 80px 20px; 
     text-align: center;
   }
   .values h2 {

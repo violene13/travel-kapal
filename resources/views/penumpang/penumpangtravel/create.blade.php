@@ -83,7 +83,6 @@
                 </div>
             </div>
 
-            {{-- Tombol Aksi --}}
             <div class="d-flex justify-content-end gap-2 mt-4">
                 <a href="{{ route('penumpang.penumpangtravel.index') }}" class="btn btn-secondary px-4">
                   Kembali

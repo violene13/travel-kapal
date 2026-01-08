@@ -10,9 +10,7 @@ use Illuminate\Support\Facades\Storage;
 
 class PenumpangController extends Controller
 {
-    // =====================
-    // PENUMPANG TRAVEL (CRUD LENGKAP)
-    // =====================
+    // penumpang travel
 
     public function index()
     {
@@ -124,9 +122,7 @@ class PenumpangController extends Controller
             ->with('success', 'Data penumpang berhasil dihapus!');
     }
 
-    // =====================
-    // PENUMPANG PELAYARAN 
-    // =====================
+    // penumang pelayaran
 
     public function indexPelayaran()
     {
@@ -159,52 +155,48 @@ class PenumpangController extends Controller
             ->with('success', 'Data penumpang berhasil dihapus!');
     }
 
-// =====================
-// PROFIL PENUMPANG LOGIN (TAMBAHAN SAJA)
-// =====================
-
-public function profil()
-{
-    $penumpang = Auth::guard('penumpang')->user();
-    return view('penumpang.profil.index', compact('penumpang'));
-}
-
-public function updateProfil(Request $request)
-{
-    $penumpang = Auth::guard('penumpang')->user();
-
-    $validated = $request->validate([
-        'nama_penumpang' => 'required|string|max:100',
-        'no_hp'          => 'nullable|string|max:20',
-        'alamat'         => 'nullable|string|max:255',
-        'foto'           => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
-    ]);
-
-   if ($request->hasFile('foto')) {
-
-    if ($penumpang->foto && Storage::disk('public')->exists($penumpang->foto)) {
-        Storage::disk('public')->delete($penumpang->foto);
+    public function profil()
+    {
+        $penumpang = Auth::guard('penumpang')->user();
+        return view('penumpang.profil.index', compact('penumpang'));
     }
 
-    $file = $request->file('foto');
-    $namaFoto = time() . '_' . $file->getClientOriginalName();
+    public function updateProfil(Request $request)
+    {
+        $penumpang = Auth::guard('penumpang')->user();
 
-    $path = $file->storeAs(
-        'penumpang',
-        $namaFoto,
-        'public'
-    );
+        $validated = $request->validate([
+            'nama_penumpang' => 'required|string|max:100',
+            'no_hp'          => 'nullable|string|max:20',
+            'alamat'         => 'nullable|string|max:255',
+            'foto'           => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+        ]);
 
-    $validated['foto'] = $path;
-}
+    if ($request->hasFile('foto')) {
 
-$penumpang->update($validated);
+        if ($penumpang->foto && Storage::disk('public')->exists($penumpang->foto)) {
+            Storage::disk('public')->delete($penumpang->foto);
+        }
 
-Auth::guard('penumpang')->logout();
-Auth::guard('penumpang')->login($penumpang->fresh());
+        $file = $request->file('foto');
+        $namaFoto = time() . '_' . $file->getClientOriginalName();
 
-return redirect()->route('penumpang.profil')
-    ->with('success', 'Profil berhasil diperbarui');
+        $path = $file->storeAs(
+            'penumpang',
+            $namaFoto,
+            'public'
+        );
 
-}   
+        $validated['foto'] = $path;
+    }
+
+    $penumpang->update($validated);
+
+    Auth::guard('penumpang')->logout();
+    Auth::guard('penumpang')->login($penumpang->fresh());
+
+    return redirect()->route('penumpang.profil')
+        ->with('success', 'Profil berhasil diperbarui');
+
+    }   
 }

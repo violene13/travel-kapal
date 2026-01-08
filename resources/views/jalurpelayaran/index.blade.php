@@ -5,7 +5,6 @@
 @section('content')
 <div class="content-wrapper">
 
-    {{-- HERO: judul + tombol (di atas, di atas card, langsung di background biru muda) --}}
     <div class="hero d-flex justify-content-between align-items-center">
         <h3 class="page-title mb-0">Daftar Jalur Pelayaran</h3>
         <a href="{{ route('jalurpelayaran.create') }}" class="btn btn-success shadow-sm">
@@ -13,7 +12,6 @@
         </a>
     </div>
 
-    {{-- White card yang menampung DataTable --}}
    <div class="card border-0 rounded-4">
     <div class="card-body">
         <div class="table-responsive">
@@ -61,7 +59,6 @@
         </div>
     </div>
 
-    {{-- Tombol Kembali --}}
     <div class="d-flex justify-content-end mt-3">
         <a href="{{ route('admin.pelayaran.dashboard') }}" class="btn btn-primary btn-sm">
             Kembali
@@ -69,56 +66,44 @@
     </div>
 </div>
 
-{{-- ===================== STYLE ===================== --}}
 <style>
 
-
-/* === Header judul === */
 .page-title {
     color: #003B5C;
     font-weight: 700;
 }
 
-/* tombol tampil kontras dengan hero (tetap menggunakan btn-success) */
 .hero .btn-success {
     background-color: #198754;
     border: none;
     box-shadow: 0 3px 8px rgba(25, 135, 84, 0.12);
 }
 
-/* ===== White card untuk tabel (di bawah hero) ===== */
-.
 
-/* beri jarak internal pada card */
 .table-container .p-3 {
     padding: 18px !important;
 }
 
-/* isi tabel */
 .table td {
     vertical-align: middle;
     white-space: nowrap;
 }
 
-/* responsive wrapper agar datatable controls ada di dalam card */
 .table-responsive {
     overflow-x: auto;
     width: 100%;
 }
 
-/* tombol edit/hapus */
 .btn-warning, .btn-danger {
     color: #fff;
 }
 
-/* global */
 body {
     background-color: transparent;
     overflow-x: hidden;
 }
 </style>
 
-{{-- ===================== SCRIPT DATATABLE ===================== --}}
 @push('scripts')
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>

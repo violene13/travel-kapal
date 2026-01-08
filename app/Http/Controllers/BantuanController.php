@@ -54,7 +54,7 @@ class BantuanController extends Controller
             ],
         ];
 
-        // Filter FAQ yang cocok
+        // Filter FAQ 
         $hasil = array_filter($faqs, function ($faq) use ($keyword) {
             return str_contains(strtolower($faq['pertanyaan']), $keyword);
         });

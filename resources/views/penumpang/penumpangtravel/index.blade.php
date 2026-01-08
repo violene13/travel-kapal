@@ -13,7 +13,6 @@
 
   <div class="card shadow-sm border-0">
     <div class="card-body p-3">
-      {{-- Bungkus tabel dengan div scroll --}}
       
         <table id="penumpangTable" class="table table-striped table-bordered align-middle mb-0">
           <thead class="table-dark text-center">
@@ -81,7 +80,6 @@
 
 @push('styles')
 <style>
-  /* Bungkus scroll horizontal hanya pada tabel */
   .table-scroll-wrapper {
     overflow-x: auto;
     overflow-y: hidden;
@@ -89,7 +87,6 @@
     width: 100%;
   }
 
-  /* Scrollbar rapi */
   .table-scroll-wrapper::-webkit-scrollbar {
     height: 10px;
   }
@@ -98,7 +95,6 @@
     border-radius: 6px;
   }
 
-  /* Pastikan tabel cukup lebar agar bisa di-scroll */
   #penumpangTable {
     min-width: 1300px;
     white-space: nowrap;
@@ -120,8 +116,7 @@
             scrollX: true,
             autoWidth: false,
 
-            // ⬇⬇ TAMBAHAN PAGINATE & ENTRI PER-HALAMAN
-            pageLength: 10, // default tampil 10 data
+            pageLength: 10, 
             lengthMenu: [ [5, 10, 15, 20, -1], [5, 10, 15, 20, "Semua"] ],
 
             language: {

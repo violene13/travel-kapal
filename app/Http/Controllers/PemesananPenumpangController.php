@@ -10,9 +10,7 @@ use Illuminate\Support\Facades\Auth;
 
 class PemesananPenumpangController extends Controller
 {
-    // =====================================================================
-    // LIST PEMESANAN PENUMPANG
-    // =====================================================================
+    
     public function index()
     {
         $user = Auth::guard('penumpang')->user();
@@ -27,33 +25,38 @@ class PemesananPenumpangController extends Controller
             ->paginate(10);
 
         return view('pemesanan.pemesananpengguna.index', compact('pemesanan'));
+    }   
+
+    public function create(Request $request, $id_jadwal)
+    {
+        $jadwal = JadwalPelayaran::with(['kapal', 'jalur'])->findOrFail($id_jadwal);
+
+    $hargaRaw = Ticketing::where('id_kapal', $jadwal->id_kapal)
+    ->where('id_jalur', $jadwal->id_jalur)
+    ->where('kelas', 'Ekonomi')
+    ->pluck('harga', 'jenis_tiket');
+
+   $hargaRaw = Ticketing::where('id_jalur', $jadwal->id_jalur)
+    ->where('kelas', 'Ekonomi')
+    ->pluck('harga', 'jenis_tiket');
+
+$harga = [
+    'dewasa' => (int) ($hargaRaw['dewasa'] ?? 0),
+    'anak'   => (int) ($hargaRaw['anak'] ?? 0),
+    'bayi'   => (int) ($hargaRaw['bayi'] ?? 0),
+];
+
+
+        return view('pemesanan.pemesananpengguna.create', [
+            'jadwal' => $jadwal,
+            'dewasa' => (int) $request->dewasa,
+            'anak'   => (int) $request->anak,
+            'bayi'   => (int) $request->bayi,
+            'harga'  => $harga
+        ]);
     }
 
-    // =====================================================================
-    // FORM PEMESANAN (JUMLAH DEWASA / ANAK / BAYI)
-    // =====================================================================
-   
-
-public function create(Request $request, $id_jadwal)
-{
-    $jadwal = JadwalPelayaran::with(['kapal', 'jalur'])->findOrFail($id_jadwal);
-
-    $harga = Ticketing::where('id_jadwal', $id_jadwal)
-        ->pluck('harga', 'tipe_penumpang');
-
-    return view('pemesanan.pemesananpengguna.create', [
-        'jadwal' => $jadwal,
-        'dewasa' => (int) $request->dewasa,
-        'anak'   => (int) $request->anak,
-        'bayi'   => (int) $request->bayi,
-        'harga'  => $harga
-    ]);
-}
-
-// =====================================================================
-    // SIMPAN PEMESANAN
-    // =====================================================================
-   public function store(Request $request, $id_jadwal)
+  public function store(Request $request, $id_jadwal)
 {
     $user = Auth::guard('penumpang')->user();
     if (!$user) {
@@ -61,25 +64,29 @@ public function create(Request $request, $id_jadwal)
             ->with('error', 'Silakan login terlebih dahulu!');
     }
 
-    // Hitung jumlah penumpang
+    $jadwal = JadwalPelayaran::findOrFail($id_jadwal);
+    $id_jalur = $jadwal->id_jalur;
+
     $jumlahDewasa = count($request->dewasa ?? []);
     $jumlahAnak   = count($request->anak ?? []);
     $jumlahBayi   = count($request->bayi ?? []);
 
-    // Ambil harga dari tabel ticketing
-    $hargaDewasa = Ticketing::where('id_jadwal', $id_jadwal)
-        ->where('tipe_penumpang', 'dewasa')
-        ->value('harga') ?? 0;
+    $hargaDewasa = Ticketing::where('id_jalur', $id_jalur)
+    ->where('jenis_tiket', 'dewasa')
+    ->where('kelas', 'Ekonomi')
+    ->value('harga') ?? 0;
 
-    $hargaAnak = Ticketing::where('id_jadwal', $id_jadwal)
-        ->where('tipe_penumpang', 'anak')
-        ->value('harga') ?? 0;
+$hargaAnak = Ticketing::where('id_jalur', $id_jalur)
+    ->where('jenis_tiket', 'anak')
+    ->where('kelas', 'Ekonomi')
+    ->value('harga') ?? 0;
 
-    $hargaBayi = Ticketing::where('id_jadwal', $id_jadwal)
-        ->where('tipe_penumpang', 'bayi')
-        ->value('harga') ?? 0;
+$hargaBayi = Ticketing::where('id_jalur', $id_jalur)
+    ->where('jenis_tiket', 'bayi')
+    ->where('kelas', 'Ekonomi')
+    ->value('harga') ?? 0;
 
-    // Hitung total harga (VALID & AMAN)
+
     $totalHarga =
         ($jumlahDewasa * $hargaDewasa) +
         ($jumlahAnak   * $hargaAnak) +
@@ -88,6 +95,7 @@ public function create(Request $request, $id_jadwal)
     $pemesanan = Pemesanan::create([
         'id_penumpang'  => $user->id_penumpang,
         'id_jadwal'     => $id_jadwal,
+        'id_jalur'      => $id_jalur,
         'tanggal_pesan' => now(),
         'total_harga'   => $totalHarga,
         'status'        => 'Pending',
@@ -98,9 +106,7 @@ public function create(Request $request, $id_jadwal)
         ->with('success', 'Pemesanan berhasil dibuat. Silakan lanjutkan pembayaran.');
 }
 
-    // =====================================================================
-    // DETAIL PEMESANAN PENUMPANG
-    // =====================================================================
+
     public function show($id)
     {
         $user = Auth::guard('penumpang')->user();

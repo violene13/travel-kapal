@@ -5,11 +5,9 @@
         @section('content')
         <div class="container py-4">
 
-            {{-- FORM PENCARIAN --}}
             <form action="{{ route('jadwal.cari') }}" method="GET" class="card p-3 mb-4 shadow-sm border-0">
                 <div class="row g-3">
 
-                    {{-- === RINGKASAN PENCARIAN (Traveloka style) === --}}
                     @if(request()->filled('asal') || request()->filled('tujuan') || request()->filled('tanggal_berangkat'))
                         <div class="p-3 mb-4 rounded-3" 
                             style="background: #e8f3ff; border-left: 6px solid #2196f3;">
@@ -45,7 +43,6 @@
                 </div>
             </form>
 
-            {{-- ==== DAFTAR JADWAL ==== --}}
             <h2 class="mb-4 fw-bold text-primary">Jadwal</h2>
 
             @if($jadwal->count() === 0)
@@ -57,7 +54,6 @@
                 <div class="col-md-6">
                     <div class="card shadow-sm border-0">
 
-                        {{-- GAMBAR KAPAL --}}
                         @if($j->kapal && $j->kapal->gambar_kapal)
                             <img 
                                 src="{{ asset('images/kapal/' . $j->kapal->gambar_kapal) }}"
@@ -128,7 +124,7 @@
         </div>
 
         <!-- =========================== -->
-        <!-- 🔹 LOGIN MODAL -->
+        <!--  LOGIN MODAL -->
         <!-- =========================== -->
         <div class="modal fade" id="loginModal" tabindex="-1" aria-labelledby="loginModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
@@ -143,7 +139,6 @@
 
             <div class="modal-body px-4 pb-4">
 
-                {{-- Pesan Error --}}
                 @if($errors->has('login_error'))
                 <div class="alert alert-danger text-center py-2">
                     {{ $errors->first('login_error') }}
@@ -200,7 +195,6 @@
         </div>
         </div>
 
-        <!-- 🔥 AUTO SHOW MODAL KETIKA ADA ERROR ATAU SUCCESS -->
         @if($errors->has('login_error') || session('success'))
         <script>
             document.addEventListener("DOMContentLoaded", function () {

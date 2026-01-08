@@ -8,16 +8,13 @@ use Illuminate\Support\Facades\Auth;
 
 class PemesananPelayaranController extends Controller
 {
-    // ========================================================================
-    //  SECTION 1 — ADMIN PELAYARAN (LISTING)
-    // ========================================================================
     public function index(Request $request)
     {
         $this->validatePelayaran();
 
         $query = Pemesanan::with(['penumpang', 'jadwal.kapal', 'jadwal.jalur']);
 
-        // Admin pelayaran bisa melihat semua data atau filter pencarian
+        // Admin pel lihat data pemesanan
         if ($request->search) {
             $query->whereHas('penumpang', function ($q) use ($request) {
                 $q->where('nama_penumpang', 'like', "%{$request->search}%")
@@ -30,9 +27,6 @@ class PemesananPelayaranController extends Controller
         return view('pemesanan.pemesananpelayaran.index', compact('pemesanan'));
     }
 
-    // ========================================================================
-    //  SECTION 2 — SHOW DETAIL PEMESANAN
-    // ========================================================================
     public function show($id)
     {
         $this->validatePelayaran();
@@ -43,9 +37,6 @@ class PemesananPelayaranController extends Controller
         return view('pemesanan.pemesananpelayaran.show', compact('pemesanan'));
     }
 
-    // ========================================================================
-    //  SECTION 3 — UPDATE STATUS (TRAVEL & PELAYARAN)
-    // ========================================================================
     public function updateStatus(Request $request, $id)
     {
         $request->validate([
@@ -64,9 +55,6 @@ class PemesananPelayaranController extends Controller
         return back()->with('success', 'Status berhasil diperbarui!');
     }
 
-    // ========================================================================
-    //  SECTION 4 — HELPER
-    // ========================================================================
     private function validatePelayaran()
     {
         if (Auth::user()->role !== 'admin_pelayaran') {

@@ -78,7 +78,6 @@
   </form>
 </div>
 
-{{-- Script sama seperti create --}}
 <script>
 document.getElementById('no_ktp').addEventListener('change', function() {
   let id = this.value;
@@ -96,7 +95,7 @@ document.getElementById('no_ktp').addEventListener('change', function() {
 
 <script>
 document.getElementById('btnPerbarui').addEventListener('click', function (e) {
-    e.preventDefault(); // tahan submit dulu
+    e.preventDefault(); 
 
     Swal.fire({
         title: 'Yakin memperbarui data?',

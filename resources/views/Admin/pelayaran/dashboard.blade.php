@@ -4,7 +4,7 @@
 
 @section('content')
 <style>
-/* ======== DASHBOARD STYLE ======== */
+/* dashboard */
 body {
     font-family: 'Inter', sans-serif;
   
@@ -158,15 +158,12 @@ body {
     </div>
 </div>
 
-
-    {{-- ====== FOOTER ORNAMENT ====== --}}
     <div class="footer-wave">
         🌊 Semangat menjaga pelayaran tetap aman dan nyaman 🌊
     </div>
 
 </div>
 
-{{-- ====== JS CHART ====== --}}
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
 const grafikData = @json($grafikStatus);

@@ -5,7 +5,6 @@
 @section('content')
 <div class="content-wrapper mt-4">
 
-    {{-- Header + Tombol Tambah --}}
     <div class="d-flex justify-content-between align-items-center mb-3">
         <h3 class="page-title fw-bold">Daftar Data Kapal</h3>
         <a href="{{ route('datakapal.create') }}" class="btn btn-success shadow-sm">
@@ -13,7 +12,6 @@
         </a>
     </div>
 
-    {{-- Box Tabel --}}
    <div class="card border-0 rounded-4">
     <div class="card-body">
         <div class="table-responsive">
@@ -58,7 +56,6 @@
         </div>
     </div>
 
-    {{-- Tombol Kembali --}}
     <div class="d-flex justify-content-end mt-4">
         <a href="{{ route('admin.pelayaran.dashboard') }}" class="btn btn-primary btn-sm">
             Kembali
@@ -66,9 +63,8 @@
     </div>
 </div>
 
-{{-- ===================== STYLE KHUSUS HALAMAN ===================== --}}
 <style>
-    /* Posisi konten biar ke kiri tapi tetap ada jarak dari sidebar */
+   
     .content-wrapper {
         margin: 0;
         padding-left: 25px;
@@ -112,7 +108,6 @@
     }
 </style>
 
-{{-- ===================== SCRIPT DATATABLE ===================== --}}
 @push('scripts')
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
@@ -120,7 +115,7 @@
 <script>
 $(document).ready(function() {
     $('#dataKapalTable').DataTable({
-        scrollX: true, // scroll hanya di tabel
+        scrollX: true, 
         autoWidth: false,
         pageLength: 10,
         lengthMenu: [10, 25, 50],

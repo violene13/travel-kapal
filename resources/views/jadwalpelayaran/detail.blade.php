@@ -5,7 +5,6 @@
 @section('content')
 <div class="container py-4">
 
-    {{-- GAMBAR KAPAL FULL WIDTH --}}
     @if($jadwal->kapal->gambar_kapal ?? false)
     <div class="card border-0 shadow-sm mb-4">
         <img src="{{ asset('images/kapal/' . $jadwal->kapal->gambar_kapal) }}"
@@ -14,10 +13,8 @@
     </div>
     @endif
 
-    {{-- CARD DETAIL --}}
     <div class="card shadow-sm border-0 p-4">
 
-        {{-- NAMA KAPAL --}}
         <h4 class="fw-bold mb-4">{{ $jadwal->kapal->nama_kapal }}</h4>
         <h4 class="mb-2">
             <i class="bi bi-building"></i>
@@ -26,7 +23,6 @@
 
         <div class="row text-center">
 
-            {{-- BERANGKAT --}}
             <div class="col-4">
                 <h5 class="mb-1">{{ date('H.i', strtotime($jadwal->jam_berangkat)) }}</h5>
                 <p class="mb-1">{{ date('j F Y', strtotime($jadwal->tanggal_berangkat)) }}</p>
@@ -36,7 +32,6 @@
                 </p>
             </div>
 
-            {{-- TENGAH: DURASI + KURSI --}}
             <div class="col-4 d-flex flex-column align-items-center justify-content-center">
                 <p class="fw-bold mb-2">{{ $jadwal->durasi ?? '3j' }}</p>
                 <div class="d-flex align-items-center gap-2">
@@ -45,7 +40,6 @@
                 </div>
             </div>
 
-            {{-- TIBA --}}
             <div class="col-4">
                 <h5 class="mb-1">{{ date('H.i', strtotime($jadwal->jam_tiba)) }}</h5>
                 <p class="mb-1">{{ date('j F Y', strtotime($jadwal->tanggal_tiba)) }}</p>
@@ -59,7 +53,6 @@
 
         <hr class="my-4">
 
-        {{-- HARGA --}}
         <div class="text-center mb-4">
             <p class="fw-bold mb-1">Harga</p>
             <h5 class="text-primary">
@@ -67,7 +60,6 @@
             </h5>
         </div>
 
-        {{-- TOMBOL PESAN --}}
         <div class="text-center">
             @if(auth('penumpang')->check())
                 <a href="{{ route('pemesanan.pemesananpengguna.create', $jadwal->id_jadwal) }}"
@@ -84,7 +76,6 @@
             @endif
         </div>
 
-        {{-- KEMBALI --}}
         <div class="text-center mt-3">
             <a href="{{ url()->previous() }}" class="btn btn-secondary">
                 Kembali
@@ -95,7 +86,7 @@
 </div>
 
 <!-- =========================== -->
-<!-- 🔹 LOGIN MODAL -->
+<!--  LOGIN MODAL -->
 <!-- =========================== -->
 <div class="modal fade" id="loginModal" tabindex="-1" aria-labelledby="loginModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
@@ -110,7 +101,7 @@
 
             <div class="modal-body px-4 pb-4">
 
-                {{-- Pesan Error --}}
+              
                 @if($errors->has('login_error'))
                 <div class="alert alert-danger text-center py-2">
                     {{ $errors->first('login_error') }}
@@ -167,7 +158,6 @@
     </div>
 </div>
 
-<!-- 🔥 AUTO SHOW MODAL KETIKA ADA ERROR ATAU SUCCESS -->
 @if($errors->has('login_error') || session('success'))
 <script>
     document.addEventListener("DOMContentLoaded", function () {

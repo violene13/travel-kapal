@@ -6,7 +6,6 @@
     <h1 class="mb-4 text-dark">Edit Data Penumpang</h1>
 
     <div class="card shadow-sm p-4">
-        {{-- pastikan action mengarah ke route update dan method-nya PUT --}}
         <form action="{{ route('penumpang.penumpangtravel.update', $penumpang->id_penumpang) }}" method="POST">
             @csrf
             @method('PUT')
@@ -59,7 +58,6 @@
                 </div>
             </div>
 
-            {{-- Tombol Aksi --}}
             <div class="d-flex justify-content-end gap-2 mt-4">
                 <a href="{{ route('penumpang.penumpangtravel.index') }}" class="btn btn-secondary px-4">Kembali</a>
                 <button type="submit" class="btn btn-success px-4">

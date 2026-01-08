@@ -4,28 +4,27 @@
 
 @section('content')
 <div class="container">
-    <h4 class="mb-4">Tambah </h4>
+    <h4 class="mb-4">Tambah Jadwal Pelayaran</h4>
 
-    <form action="{{ route('jadwalpelayaran.store') }}" method="POST"id="formSimpan">
+    <form action="{{ route('jadwalpelayaran.store') }}" method="POST" id="formSimpan">
         @csrf
 
-        {{-- Jalur Pelayaran --}}
+        {{-- JALUR --}}
         <div class="mb-3">
-            <label for="id_jalur" class="form-label">Jalur Pelayaran</label>
+            <label class="form-label">Jalur Pelayaran</label>
             <select name="id_jalur" id="id_jalur" class="form-select" required>
                 <option value="">Pilih Jalur</option>
                 @foreach ($jalur as $item)
                     <option value="{{ $item->id_jalur }}">
-                        {{ $item->pelabuhanAsal->lokasi ?? '-' }} -
-                        {{ $item->pelabuhanTujuan->lokasi ?? '-' }}
+                        {{ $item->pelabuhanAsal->lokasi ?? '-' }} → {{ $item->pelabuhanTujuan->lokasi ?? '-' }}
                     </option>
                 @endforeach
             </select>
         </div>
 
-        {{-- Kapal --}}
+        {{-- KAPAL --}}
         <div class="mb-3">
-            <label for="id_kapal" class="form-label">Nama Kapal</label>
+            <label class="form-label">Nama Kapal</label>
             <select name="id_kapal" id="id_kapal" class="form-select" required>
                 <option value="">Pilih Kapal</option>
                 @foreach ($kapal as $k)
@@ -34,132 +33,104 @@
             </select>
         </div>
 
-
-        {{-- Tanggal & Jam --}}
+        {{-- TANGGAL & JAM --}}
         <div class="row">
             <div class="col-md-4 mb-3">
-                <label for="tanggal_berangkat" class="form-label">Tanggal Berangkat</label>
-                <input type="date" name="tanggal_berangkat" id="tanggal_berangkat" class="form-control" required>
+                <label class="form-label">Tanggal Berangkat</label>
+                <input type="date" name="tanggal_berangkat" class="form-control" required>
             </div>
             <div class="col-md-4 mb-3">
-                <label for="jam_berangkat" class="form-label">Jam Berangkat</label>
-                <input type="time" name="jam_berangkat" id="jam_berangkat" class="form-control" required>
+                <label class="form-label">Jam Berangkat</label>
+                <input type="time" name="jam_berangkat" class="form-control" required>
             </div>
             <div class="col-md-4 mb-3">
-                <label for="jam_tiba" class="form-label">Jam Tiba</label>
-                <input type="time" name="jam_tiba" id="jam_tiba" class="form-control" required>
+                <label class="form-label">Jam Tiba</label>
+                <input type="time" name="jam_tiba" class="form-control" required>
             </div>
         </div>
 
-        {{-- Kelas Tiket (dinamis dari Ticketing) --}}
+        {{-- KELAS --}}
         <div class="mb-3">
-            <label for="kelas" class="form-label">Kelas Tiket</label>
+            <label class="form-label">Kelas Tiket</label>
             <select name="kelas" id="kelas" class="form-select" required>
                 <option value="">Pilih Kelas</option>
-                {{-- opsi akan diisi otomatis via JS berdasarkan kapal + jalur --}}
             </select>
         </div>
 
-        {{-- Harga Tiket --}}
+        {{-- KATEGORI & HARGA --}}
         <div class="mb-3">
-            <label for="harga" class="form-label">Harga Tiket</label>
-            <input type="number" name="harga" id="harga" class="form-control" readonly required>
+            <label class="form-label">Kategori Tiket & Harga</label>
+            <div id="kategoriWrapper" class="border rounded p-3">
+                <span class="text-muted">Pilih jalur, kapal, dan kelas terlebih dahulu</span>
+            </div>
         </div>
 
         <div class="mt-4">
-              <button type="submit" class="btn btn-primary" id="btnSimpan"> 
-                 Simpan
-            </button>
-            <a href="{{ route('jadwalpelayaran.index') }}" class="btn btn-secondary">
-              Batal
-            </a>
+            <button type="submit" class="btn btn-primary" id="btnSimpan">Simpan</button>
+            <a href="{{ route('jadwalpelayaran.index') }}" class="btn btn-secondary">Batal</a>
         </div>
     </form>
 </div>
 
-{{-- Script Dinamis --}}
 @push('scripts')
 <script>
 document.addEventListener('DOMContentLoaded', () => {
     const jalur = document.getElementById('id_jalur');
     const kapal = document.getElementById('id_kapal');
     const kelas = document.getElementById('kelas');
-    const harga = document.getElementById('harga');
+    const wrapper = document.getElementById('kategoriWrapper');
 
-    // Fungsi untuk load kelas berdasarkan jalur + kapal
     async function loadKelas() {
-        kelas.innerHTML = '<option value="">Memuat kelas...</option>';
-        harga.value = '';
+        kelas.innerHTML = '<option value="">Memuat...</option>';
+        wrapper.innerHTML = '<span class="text-muted">Pilih kelas terlebih dahulu</span>';
 
         if (!jalur.value || !kapal.value) {
             kelas.innerHTML = '<option value="">Pilih Kelas</option>';
             return;
         }
 
-        try {
-            const res = await fetch(`{{ url('/admin/pelayaran/get-kelas') }}/${jalur.value}?id_kapal=${kapal.value}`);
-            const data = await res.json();
+        const res = await fetch(`/api/jalur/${jalur.value}/kelas?id_kapal=${kapal.value}`);
+        const data = await res.json();
 
-            if (data.kelas && data.kelas.length > 0) {
-                kelas.innerHTML = '<option value="">Pilih Kelas</option>';
-                data.kelas.forEach(k => {
-                    const opt = document.createElement('option');
-                    opt.value = k;
-                    opt.textContent = k;
-                    kelas.appendChild(opt);
-                });
-            } else {
-                kelas.innerHTML = '<option value="">Tidak ada kelas tersedia</option>';
-            }
-        } catch (err) {
-            kelas.innerHTML = '<option value="">Gagal memuat kelas</option>';
-        }
+        kelas.innerHTML = '<option value="">Pilih Kelas</option>';
+        data.kelas.forEach(k => {
+            kelas.innerHTML += `<option value="${k}">${k}</option>`;
+        });
     }
 
-    // Fungsi untuk ambil harga
-    async function updateHarga() {
-        const id_jalur = jalur.value;
-        const id_kapal = kapal.value;
-        const kelasVal = kelas.value;
-
-        if (id_jalur && id_kapal && kelasVal) {
-            try {
-                const res = await fetch(`{{ url('/admin/pelayaran/get-harga') }}/${id_jalur}/${kelasVal}?id_kapal=${id_kapal}`);
-                const data = await res.json();
-                harga.value = data.harga ?? 0;
-            } catch (err) {
-                harga.value = 0;
-            }
-        } else {
-            harga.value = '';
+    async function loadKategori() {
+        wrapper.innerHTML = 'Memuat kategori...';
+        if (!jalur.value || !kapal.value || !kelas.value) {
+            wrapper.innerHTML = '<span class="text-muted">Lengkapi data di atas</span>';
+            return;
         }
+
+        const res = await fetch(`/api/jalur/${jalur.value}/kategori?id_kapal=${kapal.value}&kelas=${kelas.value}`);
+        const data = await res.json();
+
+        if (!data.kategori.length) {
+            wrapper.innerHTML = '<span class="text-muted">Tidak ada kategori</span>';
+            return;
+        }
+
+        let html = '<div class="row">';
+        for (const k of data.kategori) {
+            const resHarga = await fetch(`/api/jalur/${jalur.value}/harga?id_kapal=${kapal.value}&kelas=${kelas.value}&jenis_tiket=${k}`);
+            const harga = await resHarga.json();
+
+            html += `
+            <div class="col-md-4 mb-3">
+                <label class="form-label text-capitalize">${k}</label>
+                <input type="hidden" name="ticketing[${k}][aktif]" value="1">
+                <input type="number" class="form-control" name="ticketing[${k}][harga]" value="${harga.harga ?? 0}" readonly>
+            </div>`;
+        }
+        html += '</div>';
+        wrapper.innerHTML = html;
     }
 
-    // Event listener
-    jalur.addEventListener('change', loadKelas);
-    kapal.addEventListener('change', loadKelas);
-    kelas.addEventListener('change', updateHarga);
-});
-</script>
-
-<script>
-document.getElementById('btnSimpan').addEventListener('click', function (e) {
-    e.preventDefault(); // tahan submit dulu
-
-    Swal.fire({
-        title: 'Yakin menyimpan data?',
-        text: 'Pastikan data jadwal sudah benar',
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonText: 'Ya, Simpan',
-        cancelButtonText: 'Batal',
-        confirmButtonColor: '#0d6efd',
-        cancelButtonColor: '#6c757d'
-    }).then((result) => {
-        if (result.isConfirmed) {
-            document.getElementById('formSimpan').submit();
-        }
-    });
+    [jalur, kapal].forEach(el => el.addEventListener('change', loadKelas));
+    kelas.addEventListener('change', loadKategori);
 });
 </script>
 @endpush

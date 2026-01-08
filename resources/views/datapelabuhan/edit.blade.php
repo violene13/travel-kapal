@@ -11,7 +11,6 @@
             @csrf
             @method('PUT')
 
-            {{-- Nama Pelabuhan --}}
             <div class="mb-3">
                 <label class="form-label fw-semibold">Nama Pelabuhan</label>
                 <input type="text" 
@@ -24,7 +23,6 @@
                 @enderror
             </div>
 
-            {{-- Lokasi --}}
             <div class="mb-3">
                 <label class="form-label fw-semibold">Lokasi</label>
                 <input type="text" 
@@ -37,7 +35,6 @@
                 @enderror
             </div>
 
-            {{-- Fasilitas --}}
             <div class="mb-3">
                 <label class="form-label fw-semibold">Fasilitas Pelabuhan</label>
                 <textarea name="fasilitas_pelabuhan" 
@@ -48,7 +45,6 @@
                 @enderror
             </div>
 
-            {{-- Tombol --}}
             <div class="d-flex justify-content-end mt-4">
                 <a href="{{ route('datapelabuhan.index') }}" class="btn btn-secondary me-2">
                     <i class="bi bi-arrow-left-circle"></i> Kembali
@@ -61,7 +57,6 @@
     </div>
 </div>
 
-{{-- Style opsional agar konsisten --}}
 <style>
     h4 {
         color: #003B5C;

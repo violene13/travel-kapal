@@ -5,7 +5,6 @@
 @section('content')
 <div class="container py-5">
 
-    <!-- Jika tidak ada data -->
     @if ($pemesanan->isEmpty())
         <div class="text-center mt-5">
             <img src="https://cdn-icons-png.flaticon.com/512/4076/4076500.png" width="140" class="mb-3 opacity-75">
@@ -19,7 +18,6 @@
         </div>
     @else
 
-    <!-- Daftar pemesanan -->
     <div class="card shadow-sm border-0">
         <div class="card-body p-0">
 

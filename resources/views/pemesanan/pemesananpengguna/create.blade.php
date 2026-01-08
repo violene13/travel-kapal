@@ -3,153 +3,139 @@
 @section('content')
 <div class="container py-4">
 
-    <form id="formPemesanan"
+<form id="formPemesanan"
       action="{{ route('pemesanan.pemesananpengguna.store', $jadwal->id_jadwal) }}"
       method="POST">
-    @csrf
+@csrf
 
+<input type="hidden" name="id_jadwal" value="{{ $jadwal->id_jadwal }}">
 
-        {{-- ======================================================
-            FORM DEWASA
-        ======================================================= --}}
-        <div class="card mb-4 shadow-sm">
-            <div class="card-header bg-white fw-bold">
-                Dewasa 1
-            </div>
-            <div class="card-body">
-                <div class="alert alert-warning small">
-                    ⚠️ Perhatikan hal berikut <br>
-                    Masukkan nama sesuai dengan yang ada di KTP.
-                    Kesalahan penulisan dapat menyebabkan gagal check-in.
-                </div>
-
-                <div class="row mb-3">
-                    <div class="col-md-6">
-                        <label class="form-label">Nama Lengkap</label>
-                        <input type="text" name="dewasa[0][nama_lengkap]" class="form-control" required>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        {{-- ======================================================
-            FORM ANAK
-        ======================================================= --}}
-        <div class="card mb-4 shadow-sm">
-            <div class="card-header bg-white fw-bold">
-                Anak 1
-            </div>
-            <div class="card-body">
-
-                <div class="row mb-3">
-                    <div class="col-md-6">
-                        <label class="form-label">Nama Lengkap</label>
-                        <input type="text" name="anak[0][nama_lengkap]" class="form-control" required>
-                    </div>
-
-                <label class="form-label">Tanggal Lahir</label>
-                <div class="row g-2">
-                    <div class="col-4">
-                        <input type="number" placeholder="DD" name="anak[0][tanggal]" class="form-control" min="1" max="31" required>
-                    </div>
-                    <div class="col-4">
-                        <input type="number" placeholder="MM" name="anak[0][bulan]" class="form-control" min="1" max="12" required>
-                    </div>
-                    <div class="col-4">
-                        <input type="number" placeholder="YYYY" name="anak[0][tahun]" class="form-control" min="1900" max="2100" required>
-                    </div>
-                </div>
-
-            </div>
-        </div>
-
-        {{-- ======================================================
-            FORM BAYI
-        ======================================================= --}}
-        <div class="card mb-4 shadow-sm">
-            <div class="card-header bg-white fw-bold">
-                Bayi 1
-            </div>
-            <div class="card-body">
-
-                <div class="row mb-3">
-                    <div class="col-md-6">
-                        <label class="form-label">Nama Lengkap</label>
-                        <input type="text" name="bayi[0][nama_lengkap]" class="form-control" required>
-                    </div>
-
-                <label class="form-label">Tanggal Lahir</label>
-                <div class="row g-2">
-                    <div class="col-4">
-                        <input type="number" placeholder="DD" name="bayi[0][tanggal]" class="form-control" min="1" max="31" required>
-                    </div>
-                    <div class="col-4">
-                        <input type="number" placeholder="MM" name="bayi[0][bulan]" class="form-control" min="1" max="12" required>
-                    </div>
-                    <div class="col-4">
-                        <input type="number" placeholder="YYYY" name="bayi[0][tahun]" class="form-control" min="1900" max="2100" required>
-                    </div>
-                </div>
-
-            </div>
-        </div>
-
-        {{-- ======================================================
-            RINCIAN HARGA
-        ======================================================= --}}
-      <div class="d-flex justify-content-between small mb-1">
-    <span>{{ $jadwal->kapal->nama_kapal }} (Dewasa) x{{ $dewasa }}</span>
-    <span>Rp {{ number_format($harga['dewasa'] * $dewasa, 0, ',', '.') }}</span>
+<div class="mb-4">
+    <div class="d-flex justify-content-between mb-2">
+        <h5>Dewasa</h5>
+        <button type="button" class="btn btn-sm btn-outline-primary" onclick="tambahForm('dewasa')">
+            Tambah Dewasa
+        </button>
+    </div>
+    <div id="dewasa-wrapper"></div>
 </div>
 
-<div class="d-flex justify-content-between small mb-1">
-    <span>{{ $jadwal->kapal->nama_kapal }} (Anak) x{{ $anak }}</span>
-    <span>Rp {{ number_format($harga['anak'] * $anak, 0, ',', '.') }}</span>
+<div class="mb-4">
+    <div class="d-flex justify-content-between mb-2">
+        <h5>Anak</h5>
+        <button type="button" class="btn btn-sm btn-outline-warning" onclick="tambahForm('anak')">
+            Tambah Anak
+        </button>
+    </div>
+    <div id="anak-wrapper"></div>
+</div>
+
+<div class="mb-4">
+    <div class="d-flex justify-content-between mb-2">
+        <h5>Bayi</h5>
+        <button type="button" class="btn btn-sm btn-outline-info" onclick="tambahForm('bayi')">
+           Tambah Bayi
+        </button>
+    </div>
+    <div id="bayi-wrapper"></div>
+</div>
+
+<hr>
+
+<div class="fw-bold mb-2">Ringkasan Harga</div>
+
+<div class="d-flex justify-content-between small">
+    <span>Dewasa x <span id="count-dewasa">0</span></span>
+    <span>Rp <span id="total-dewasa">0</span></span>
+</div>
+
+<div class="d-flex justify-content-between small">
+    <span>Anak x <span id="count-anak">0</span></span>
+    <span>Rp <span id="total-anak">0</span></span>
 </div>
 
 <div class="d-flex justify-content-between small mb-2">
-    <span>{{ $jadwal->kapal->nama_kapal }} (Bayi) x{{ $bayi }}</span>
-    <span>Rp {{ number_format($harga['bayi'] * $bayi, 0, ',', '.') }}</span>
+    <span>Bayi x <span id="count-bayi">0</span></span>
+    <span>Rp <span id="total-bayi">0</span></span>
 </div>
 
 <hr>
 
 <div class="d-flex justify-content-between fw-bold">
-    <span>Total Harga</span>
-    <span>
-        Rp {{
-            number_format(
-                ($harga['dewasa'] * $dewasa) +
-                ($harga['anak'] * $anak) +
-                ($harga['bayi'] * $bayi),
-            0, ',', '.')
-        }}
-    </span>
+    <span>Total</span>
+    <span>Rp <span id="grand-total">0</span></span>
 </div>
 
-<button class="btn btn-primary w-100 py-2 fw-bold">Lanjut Pembayaran</button>
+<button type="submit" class="btn btn-primary w-25 mt-3 fw-bold">
+    Lanjutkan Pemesanan
+</button>
 
-    </form>
+ <a href="{{ route('jadwal.cari', $jadwal->id_jadwal) }}"
+       class="btn btn-outline-secondary fw-bold px-4">
+        Kembali
+    </a>
+
+</form>
 </div>
+
+
 <script>
-document.getElementById('formPemesanan').addEventListener('submit', function (e) {
-    e.preventDefault(); // tahan submit dulu
+const harga = @json($harga);
 
-    Swal.fire({
-        title: 'Lanjut ke Pembayaran?',
-        text: 'Pastikan data penumpang sudah benar',
-        icon: 'question',
-        showCancelButton: true,
-        confirmButtonText: 'Bayar Sekarang',
-        cancelButtonText: 'Batal',
-        confirmButtonColor: '#0d6efd',
-        cancelButtonColor: '#6c757d'
-    }).then((result) => {
-        if (result.isConfirmed) {
-            e.target.submit(); // lanjut submit form
-        }
+let index = { dewasa: 0, anak: 0, bayi: 0 };
+
+function tambahForm(tipe) {
+    const wrapper = document.getElementById(`${tipe}-wrapper`);
+    const i = index[tipe]++;
+
+    wrapper.insertAdjacentHTML('beforeend', `
+        <div class="card mb-3">
+            <div class="card-header d-flex justify-content-between">
+                <strong>${tipe.toUpperCase()} ${i + 1}</strong>
+                <button type="button" class="btn btn-sm btn-danger" onclick="this.closest('.card').remove(); updateTotal();">
+                    Hapus
+                </button>
+            </div>
+            <div class="card-body">
+                <input type="text" name="${tipe}[${i}][nama_lengkap]"
+                       class="form-control mb-2"
+                       placeholder="Nama Lengkap" required>
+
+                ${tipe !== 'dewasa' ? `
+                <div class="row g-2">
+                    <div class="col">
+                        <input type="number" name="${tipe}[${i}][tanggal]" placeholder="DD" class="form-control" required>
+                    </div>
+                    <div class="col">
+                        <input type="number" name="${tipe}[${i}][bulan]" placeholder="MM" class="form-control" required>
+                    </div>
+                    <div class="col">
+                        <input type="number" name="${tipe}[${i}][tahun]" placeholder="YYYY" class="form-control" required>
+                    </div>
+                </div>` : ``}
+            </div>
+        </div>
+    `);
+
+    updateTotal();
+}
+
+function updateTotal() {
+    ['dewasa','anak','bayi'].forEach(tipe => {
+        const jumlah = document.querySelectorAll(`#${tipe}-wrapper .card`).length;
+        document.getElementById(`count-${tipe}`).innerText = jumlah;
+        document.getElementById(`total-${tipe}`).innerText =
+            (jumlah * (harga[tipe] ?? 0)).toLocaleString('id-ID');
     });
-});
-</script>
 
+    const total =
+        (document.querySelectorAll('#dewasa-wrapper .card').length * (harga.dewasa ?? 0)) +
+        (document.querySelectorAll('#anak-wrapper .card').length * (harga.anak ?? 0)) +
+        (document.querySelectorAll('#bayi-wrapper .card').length * (harga.bayi ?? 0));
+
+    document.getElementById('grand-total').innerText = total.toLocaleString('id-ID');
+}
+
+tambahForm('dewasa');
+</script>
 @endsection

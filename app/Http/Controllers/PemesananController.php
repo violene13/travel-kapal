@@ -10,9 +10,7 @@ use Illuminate\Support\Facades\Auth;
 
 class PemesananController extends Controller
 {
-    // ========================================================================
-    //  SECTION 1 — ADMIN TRAVEL (LISTING)
-    // ========================================================================
+
     public function index(Request $request)
     {
         $this->validateTravel();
@@ -32,9 +30,6 @@ class PemesananController extends Controller
         return view($this->viewPath() . '.index', compact('pemesanan'));
     }
 
-    // ========================================================================
-    //  SECTION 2 — CREATE / STORE
-    // ========================================================================
     public function create()
     {
         $this->validateTravel();
@@ -80,9 +75,6 @@ class PemesananController extends Controller
             ->with('success', 'Pemesanan berhasil dibuat!');
     }
 
-    // ========================================================================
-    //  SECTION 3 — EDIT / UPDATE / DELETE
-    // ========================================================================
    public function edit($id)
 {
     $this->validateTravel();
@@ -123,7 +115,6 @@ class PemesananController extends Controller
         ->with('success', 'Pemesanan berhasil diperbarui!');
 }
 
-
     public function destroy($id)
     {
         $this->validateTravel();
@@ -134,9 +125,6 @@ class PemesananController extends Controller
             ->with('success', 'Data berhasil dihapus!');
     }
 
-    // ========================================================================
-    //  SECTION 4 — UPDATE STATUS (TRAVEL & PELAYARAN)
-    // ========================================================================
     public function updateStatus(Request $request, $id)
     {
         $request->validate([
@@ -155,9 +143,6 @@ class PemesananController extends Controller
         return back()->with('success', 'Status berhasil diperbarui!');
     }
 
-    // ========================================================================
-    //  SECTION 5 — AJAX CARI PENUMPANG (Travel & Pelayaran)
-    // ========================================================================
     public function getPenumpangByName(Request $request)
     {
         $penumpang = Penumpang::where('nama_penumpang', 'LIKE', "%$request->nama%")->first();
@@ -169,9 +154,7 @@ class PemesananController extends Controller
         return response()->json($penumpang);
     }
 
-    // ========================================================================
-    //  HELPER — VALIDASI ROLE & VIEW PATH
-    // ========================================================================
+    // validasi role
     private function validateTravel()
     {
         if (Auth::user()->role !== 'admin_travel') {
@@ -184,7 +167,6 @@ class PemesananController extends Controller
         return 'pemesanan.pemesanantravel';
     }
 
-    //SHOW METHOD//
     public function show($id)
 {
     $pemesanan = \App\Models\Pemesanan::with([

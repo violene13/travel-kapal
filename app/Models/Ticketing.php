@@ -32,10 +32,5 @@ class Ticketing extends Model
     {
         return $this->belongsTo(JalurPelayaran::class, 'id_jalur', 'id_jalur');
     }
-
-    /**
-     * Tidak ada relasi ke JadwalPelayaran karena DB tidak punya id_jadwal.
-     * Relasi ke jadwal dilakukan dari sisi JadwalPelayaran (hasMany).
-     */
     
 }

@@ -2,10 +2,8 @@
 
 @section('content')
 <div class="container mt-4">
-    {{-- Judul Halaman --}}
     <h2 class="fw-bold mb-4">Data Penumpang Pelayaran</h2>
 
-    {{-- Notifikasi sukses --}}
     @if(session('success'))
         <div class="alert alert-success alert-dismissible fade show" role="alert">
             {{ session('success') }}
@@ -13,7 +11,6 @@
         </div>
     @endif
 
-    {{-- Wrapper Tabel --}}
     <div class="card border-0 rounded-4">
     <div class="card-body">
         <div class="table-responsive">
@@ -65,8 +62,6 @@
     </div>
 </div>
 
-
-    {{-- Tombol Kembali --}}
     <div class="d-flex justify-content-end mt-4">
         <a href="{{ route('admin.pelayaran.dashboard') }}" class="btn btn-primary px-4">
             Kembali
@@ -74,7 +69,6 @@
     </div>
 </div>
 
-{{-- Script DataTables --}}
 @push('scripts') 
 <script>
     $(document).ready(function() {

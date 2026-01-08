@@ -7,7 +7,6 @@
 
     <h2 class="fw-bold text-primary mb-4">Daftar Pemesanan Pelayaran</h2>
 
-    {{-- Wrapper tabel agar bisa discroll horizontal --}}
     <div class="table-responsive">
         <table id="pemesananPelayaranTable" class="table table-striped table-bordered nowrap" style="width:100%">
             <thead class="table-success table-header">
@@ -29,16 +28,12 @@
             <tbody>
                 @foreach($pemesanan as $item)
                 <tr>
-                    {{-- ID Pemesanan --}}
                     <td>#{{ str_pad($item->id_pemesanan, 5, '0', STR_PAD_LEFT) }}</td>
 
-                    {{-- Nama Penumpang --}}
                     <td>{{ $item->penumpang->nama_penumpang ?? '-' }}</td>
 
-                    {{-- Nomor HP --}}
                     <td>{{ $item->penumpang->no_hp ?? '-' }}</td>
 
-                    {{-- Gender --}}
                     <td>
                         @if($item->penumpang?->gender === 'L')
                             Laki-laki
@@ -49,7 +44,6 @@
                         @endif
                     </td>
 
-                    {{-- Usia --}}
                     <td>
                         @if($item->penumpang?->tanggal_lahir)
                             {{ \Carbon\Carbon::parse($item->penumpang->tanggal_lahir)->age }} th
@@ -58,7 +52,6 @@
                         @endif
                     </td>
 
-                    {{-- Jadwal --}}
                     <td>
                         @if($item->jadwal)
                             {{ \Carbon\Carbon::parse($item->jadwal->tanggal_berangkat)->translatedFormat('d M Y') }}
@@ -69,19 +62,14 @@
                         @endif
                     </td>
 
-                    {{-- Rute --}}
                     <td>{{ $item->jadwal->jalur->rute ?? '-' }}</td>
 
-                    {{-- Kapal --}}
                     <td>{{ $item->jadwal->kapal->nama_kapal ?? '-' }}</td>
 
-                    {{-- Kelas --}}
                     <td>{{ $item->jadwal->kelas ?? '-' }}</td>
 
-                    {{-- Harga --}}
                     <td>Rp {{ number_format($item->jadwal->harga ?? 0, 0, ',', '.') }}</td>
 
-                    {{-- Status --}}
                     <td>
                         @php $status = strtolower($item->status ?? 'pending'); @endphp
 

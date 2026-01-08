@@ -6,7 +6,6 @@
 <div class="container-fluid px-4">
   <h2 class="text-dark mb-4">Tambah Pemesanan</h2>
 
-  {{-- Pesan Error --}}
   @if(session('error'))
     <div class="alert alert-danger">{{ session('error') }}</div>
   @endif
@@ -14,7 +13,6 @@
   <form action="{{ route('pemesanan.pemesanantravel.store') }}" method="POST" id="formPemesanan">
     @csrf
 
-    {{-- ==================== DATA PENUMPANG ==================== --}}
     <div class="card shadow-sm p-4 mb-4">
       <h5 class="fw-bold mb-3 text-secondary">Data Penumpang</h5>
 
@@ -63,7 +61,6 @@
       </div>
     </div>
 
-    {{-- ==================== DATA JADWAL ==================== --}}
     <div class="card shadow-sm p-4 mb-4">
       <h5 class="fw-bold mb-3 text-secondary">Pilih Jadwal Pelayaran</h5>
       <div class="mb-3">
@@ -84,7 +81,6 @@
       </div>
     </div>
 
-    {{-- ==================== TOMBOL SIMPAN ==================== --}}
     <div class="mt-4 text-end">
       <a href="{{ route('pemesanan.pemesanantravel.index') }}" class="btn btn-secondary">
         Kembali
@@ -96,7 +92,6 @@
   </form>
 </div>
 
-{{-- ==================== SCRIPT AJAX ==================== --}}
 <script>
 document.getElementById('nama_penumpang').addEventListener('blur', function() {
   let nama = this.value.trim();
@@ -119,7 +114,7 @@ document.getElementById('nama_penumpang').addEventListener('blur', function() {
 </script>
 <script>
 document.getElementById('btnSimpan').addEventListener('click', function (e) {
-    e.preventDefault(); // tahan submit dulu
+    e.preventDefault(); 
 
     Swal.fire({
         title: 'Yakin menyimpan data?',

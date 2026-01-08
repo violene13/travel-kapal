@@ -9,5 +9,5 @@ class AdminTravel extends Authenticatable
     protected $table = 'admin_travel';
     protected $fillable = ['username', 'password'];
     protected $hidden = ['password'];
-    public $timestamps = false; // sesuaikan sama database kamu
+    public $timestamps = false; 
 }

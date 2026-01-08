@@ -8,7 +8,7 @@
 
   <div class="card shadow-sm border-0 rounded-3">
     <div class="card-body">
-      {{-- Informasi Pemesanan --}}
+      
       <div class="row mb-2">
         <div class="col-md-4 fw-semibold">ID Pemesanan:</div>
         <div class="col-md-8">#{{ str_pad($pemesanan->id_pemesanan, 5, '0', STR_PAD_LEFT) }}</div>
@@ -47,7 +47,6 @@
 
       <hr>
 
-      {{-- Informasi Jadwal --}}
       <div class="row mb-2">
         <div class="col-md-4 fw-semibold">Rute:</div>
         <div class="col-md-8">{{ optional(optional($pemesanan->jadwal)->jalur)->rute ?? '-' }}</div>

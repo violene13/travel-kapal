@@ -16,6 +16,8 @@ use App\Http\Controllers\TicketingController;
 use App\Http\Controllers\SealineController;
 use App\Http\Controllers\AboutUsController;
 use App\Http\Controllers\BantuanController;
+use App\Http\Controllers\PembayaranController;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -46,7 +48,7 @@ Route::middleware('guest')->group(function () {
     Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
     Route::post('/login', [LoginController::class, 'login'])->name('login.process');
 
-    // LOGIN DARI MODAL (JIKA DIPAKAI)
+    // LOGIN 
     Route::post('/login-modal', [LoginController::class, 'loginModal'])->name('login.modal');
 
     Route::get('/register', [LoginController::class, 'showRegisterForm'])->name('register');
@@ -61,7 +63,35 @@ Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 |--------------------------------------------------------------------------
 */
 Route::middleware('auth:web')->group(function () {
-    /*
+
+// ======================
+// TICKETING
+// ======================
+
+    Route::prefix('ticketing')->name('ticketing.')->group(function () {
+
+    Route::get('/', [TicketingController::class, 'index'])
+        ->name('index');
+
+    Route::get('/create', [TicketingController::class, 'create'])
+        ->name('create');
+
+    Route::post('/', [TicketingController::class, 'store'])
+        ->name('store');
+
+    // 🔑 PAKAI GROUP KEY
+    Route::get('/{groupKey}/edit', [TicketingController::class, 'edit'])
+        ->name('edit');
+
+    Route::put('/{groupKey}', [TicketingController::class, 'update'])
+        ->name('update');
+
+    Route::delete('/{groupKey}', [TicketingController::class, 'destroy'])
+        ->name('destroy');
+});
+
+    
+/*
 |--------------------------------------------------------------------------
 | DATA PENUMPANG (ADMIN)
 |--------------------------------------------------------------------------
@@ -105,13 +135,13 @@ Route::prefix('penumpang')->name('penumpang.')->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])
         ->name('dashboard');
 
-    // ✅ ADMIN TRAVEL SAJA
+    // ADMIN TRAVEL
     Route::middleware('role:admin_travel')->group(function () {
         Route::get('/dashboard/travel', [DashboardController::class, 'travel'])
             ->name('admin.travel.dashboard');
     });
 
-    // ✅ ADMIN PELAYARAN SAJA
+    // ADMIN PELAYARAN 
     Route::middleware('role:admin_pelayaran')->group(function () {
         Route::get('/dashboard/pelayaran', [DashboardController::class, 'pelayaran'])
             ->name('admin.pelayaran.dashboard');
@@ -139,15 +169,43 @@ Route::prefix('penumpang')->name('penumpang.')->group(function () {
         Route::put('/update/{jadwalpelayaran}', [JadwalPelayaranController::class, 'update'])->name('update');
         Route::delete('/destroy/{jadwalpelayaran}', [JadwalPelayaranController::class, 'destroy'])->name('destroy');
     });
+    /*
+    |--------------------------------------------------------------------------
+    | API JADWAL & TICKETING (AJAX)
+    |--------------------------------------------------------------------------
+    | Digunakan untuk:
+    | - Ambil kelas berdasarkan jalur + kapal
+    | - Ambil kategori tiket (dewasa / anak / bayi)
+    | - Ambil harga tiket
+    |
+    */
 
-    // AJAX
-    Route::get('/admin/pelayaran/get-kelas/{id_jalur}', [JadwalPelayaranController::class, 'getKelas']);
-    Route::get('/admin/pelayaran/get-harga/{id_jalur}/{kelas}', [JadwalPelayaranController::class, 'getHarga']);
+    Route::prefix('api')->name('api.')->group(function () {
 
-    // ======================
-    // TICKETING
-    // ======================
-    Route::resource('ticketing', TicketingController::class);
+        // ======================
+        // KELAS TIKET
+        // ======================
+        Route::get('/jalur/{id_jalur}/kelas',
+            [JadwalPelayaranController::class, 'getKelas']
+        )->name('jalur.kelas');
+
+        // ======================
+        // KATEGORI TIKET
+        // ======================
+        Route::get('/jalur/{id_jalur}/kategori',
+            [JadwalPelayaranController::class, 'getKategori']
+        )->name('jalur.kategori');
+
+        // ======================
+        // HARGA TIKET
+        // ======================
+        Route::get('/jalur/{id_jalur}/harga',
+            [JadwalPelayaranController::class, 'getHarga']
+        )->name('jalur.harga');
+
+    });
+
+
 
     // ======================
     // PEMESANAN ADMIN
@@ -168,7 +226,6 @@ Route::prefix('penumpang')->name('penumpang.')->group(function () {
         Route::get('/{id}', [PemesananPelayaranController::class, 'show'])->name('show');
     });
 
-    // ❗ WAJIB TETAP ADA
     Route::get('/get-penumpang-by-name',
         [PemesananController::class, 'getPenumpangByName']
     )->name('getPenumpangByName');
@@ -195,6 +252,14 @@ Route::middleware('auth:penumpang')->group(function () {
     Route::get('/pemesanan/pengguna/detail/{id}',
         [PemesananPenumpangController::class, 'show'])
         ->name('pemesanan.pemesananpengguna.show');
+
+    // ======================
+    // PEMBAYARAN PENUMPANG
+    // ======================
+    Route::get('/pembayaran/{id_pemesanan}',
+        [PembayaranController::class, 'show']
+    )->name('pembayaran.show');
+
 
     Route::get('/profil', [PenumpangController::class, 'profil'])->name('penumpang.profil');
     Route::post('/profil/update', [PenumpangController::class, 'updateProfil'])

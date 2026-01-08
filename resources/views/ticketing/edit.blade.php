@@ -7,79 +7,79 @@
     <h4 class="mb-3">Edit Harga Tiket</h4>
 
     <div class="card p-3 shadow-sm">
-        <form action="{{ route('ticketing.update', $ticketing->id_ticketing) }}" method="POST">
-    @csrf
-    @method('PUT')
+        <form action="{{ route('ticketing.update', $groupKey) }}" method="POST">
+            @csrf
+            @method('PUT')
 
-    <div class="mb-3">
-        <label for="id_kapal" class="form-label">Nama Kapal</label>
-        <select name="id_kapal" id="id_kapal" class="form-select" required>
-            @foreach($kapals as $kapal)
-                <option value="{{ $kapal->id_kapal }}" {{ $kapal->id_kapal == $ticketing->id_kapal ? 'selected' : '' }}>
-                    {{ $kapal->nama_kapal }}
-                </option>
-            @endforeach
-        </select>
-    </div>
+            {{-- KAPAL --}}
+            <div class="mb-3">
+                <label class="form-label">Nama Kapal</label>
+                <select name="id_kapal" class="form-select" required>
+                    @foreach($kapals as $kapal)
+                        <option value="{{ $kapal->id_kapal }}"
+                            {{ $kapal->id_kapal == $id_kapal ? 'selected' : '' }}>
+                            {{ $kapal->nama_kapal }}
+                        </option>
+                    @endforeach
+                </select>
+            </div>
 
-    <div class="mb-3">
-        <label for="id_jalur" class="form-label">Rute Pelayaran</label>
-        <select name="id_jalur" id="id_jalur" class="form-select" required>
-            @foreach($jalurs as $jalur)
-                <option value="{{ $jalur->id_jalur }}" {{ $jalur->id_jalur == $ticketing->id_jalur ? 'selected' : '' }}>
-                    {{ $jalur->pelabuhanAsal->nama_pelabuhan }} → {{ $jalur->pelabuhanTujuan->nama_pelabuhan }}
-                </option>
-            @endforeach
-        </select>
-    </div>
-    <div class="mb-3">
-    <label for="jenis_tiket" class="form-label">Jenis Tiket</label>
-    <select 
-        name="jenis_tiket" 
-        id="jenis_tiket" 
-        class="form-select @error('jenis_tiket') is-invalid @enderror" 
-        required
-    >
-        <option value="">-- Pilih Jenis Tiket --</option>
+            {{-- JALUR --}}
+            <div class="mb-3">
+                <label class="form-label">Rute Pelayaran</label>
+                <select name="id_jalur" class="form-select" required>
+                    @foreach($jalurs as $jalur)
+                        <option value="{{ $jalur->id_jalur }}"
+                            {{ $jalur->id_jalur == $id_jalur ? 'selected' : '' }}>
+                            {{ $jalur->pelabuhanAsal->lokasi }}
+                            →
+                            {{ $jalur->pelabuhanTujuan->lokasi }}
+                        </option>
+                    @endforeach
+                </select>
+            </div>
 
-        <option value="Dewasa" 
-            {{ old('jenis_tiket', $ticketing->jenis_tiket) == 'Dewasa' ? 'selected' : '' }}>
-            Dewasa
-        </option>
+            {{-- KELAS --}}
+            <div class="mb-3">
+                <label class="form-label">Kelas</label>
+                <input type="text" name="kelas" class="form-control"
+                       value="{{ $kelas }}" readonly>
+            </div>
 
-        <option value="Anak" 
-            {{ old('jenis_tiket', $ticketing->jenis_tiket) == 'Anak' ? 'selected' : '' }}>
-            Anak
-        </option>
+            {{-- KATEGORI & HARGA --}}
+            <div class="mb-3">
+                <label class="form-label">Kategori & Harga</label>
 
-        <option value="Bayi" 
-            {{ old('jenis_tiket', $ticketing->jenis_tiket) == 'Bayi' ? 'selected' : '' }}>
-            Bayi
-        </option>
-    </select>
+                @php
+                    $map = $ticketings->keyBy('jenis_tiket');
+                @endphp
 
-    @error('jenis_tiket')
-        <div class="invalid-feedback">{{ $message }}</div>
-    @enderror
+               @foreach(['Dewasa','Anak','Bayi'] as $jenis)
+<div class="col-md-4 mb-3">
+    <label class="form-label">{{ $jenis }}</label>
+
+    <input type="number"
+           name="harga[{{ $jenis }}]"
+           class="form-control"
+           value="{{ old('harga.'.$jenis, $ticketings[$jenis]->harga ?? '') }}"
+           placeholder="Kosongkan jika tidak ada">
 </div>
+@endforeach
 
+                </div>
+            </div>
 
-    <div class="mb-3">
-        <label for="kelas" class="form-label">Kelas</label>
-        <input type="text" name="kelas" id="kelas" class="form-control" value="{{ $ticketing->kelas }}" required>
-    </div>
+            {{-- AKSI --}}
+            <div class="d-flex justify-content-between">
+                <a href="{{ route('ticketing.index') }}" class="btn btn-secondary">
+                    Kembali
+                </a>
+                <button type="submit" class="btn btn-primary">
+                    Simpan Perubahan
+                </button>
+            </div>
 
-    <div class="mb-3">
-        <label for="harga" class="form-label">Harga (Rp)</label>
-        <input type="number" name="harga" id="harga" class="form-control" value="{{ $ticketing->harga }}" required>
-    </div>
-
-    <div class="d-flex justify-content-between">
-        <a href="{{ route('ticketing.index') }}" class="btn btn-secondary">Kembali</a>
-        <button type="submit" class="btn btn-primary">Perbarui</button>
-    </div>
-</form>
-
+        </form>
     </div>
 </div>
 @endsection

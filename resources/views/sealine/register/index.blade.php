@@ -4,7 +4,6 @@
 
 @section('content')
 <style>
-    /* === LATAR DAN POSISI === */
     body {
         background-color: #ffffff;
         background-image: url('{{ asset("images/daftar.jpeg") }}');
@@ -22,7 +21,7 @@
         padding: 40px 15px;
     }
 
-    /* === KARTU FORM === */
+    /* === card form === */
     .register-card {
         background-color: #fff;
         border-radius: 12px;
@@ -120,7 +119,6 @@
     <div class="register-card">
         <h4><i class=></i>Registrasi</h4>
 
-        {{-- Error --}}
         @if ($errors->any())
             <div class="alert alert-danger py-2">
                 <ul class="mb-0 ps-3">
@@ -131,7 +129,6 @@
             </div>
         @endif
 
-        {{-- Sukses --}}
         @if (session('success'))
             <div class="alert alert-success text-center py-2" style="font-size: 13px;">
                 {{ session('success') }}

@@ -11,7 +11,6 @@
         </a>
     </div>
 
-    {{-- Wrapper tabel agar bisa discroll horizontal --}}
     <div class="table-responsive">
         <table id="pemesananTable" class="table table-striped table-bordered nowrap" style="width:100%">
             <thead class="table-dark">
@@ -34,16 +33,12 @@
             <tbody>
                 @foreach($pemesanan as $item)
                 <tr>
-                    {{-- ID Pemesanan --}}
                     <td>#{{ str_pad($item->id_pemesanan, 5, '0', STR_PAD_LEFT) }}</td>
 
-                    {{-- Nama Penumpang --}}
                     <td>{{ $item->penumpang->nama_penumpang ?? '-' }}</td>
 
-                    {{-- Tanggal Lahir --}}
                     <td>{{ $item->penumpang->tanggal_lahir ?? '-' }}</td>
 
-                    {{-- Usia --}}
                     <td>
                         @if(!empty($item->penumpang?->tanggal_lahir))
                             {{ \Carbon\Carbon::parse($item->penumpang->tanggal_lahir)->age }} tahun
@@ -52,7 +47,6 @@
                         @endif
                     </td>
 
-                    {{-- Jenis Kelamin --}}
                     <td>
                         @if($item->penumpang?->gender === 'L')
                             Laki-laki
@@ -63,10 +57,8 @@
                         @endif
                     </td>
 
-                    {{-- Nomor HP --}}
                     <td>{{ $item->penumpang->no_hp ?? '-' }}</td>
 
-                    {{-- Jadwal --}}
                     <td>
                         @if($item->jadwal)
                             {{ \Carbon\Carbon::parse($item->jadwal->tanggal_berangkat)->translatedFormat('d M Y') }}<br>
@@ -76,23 +68,17 @@
                         @endif
                     </td>
 
-                    {{-- Rute --}}
                     <td>{{ $item->jadwal->jalur->rute ?? '-' }}</td>
 
-                    {{-- Kapal --}}
                     <td>{{ $item->jadwal->kapal->nama_kapal ?? '-' }}</td>
 
-                    {{-- Kelas --}}
                     <td>{{ $item->jadwal->kelas ?? '-' }}</td>
 
-                    {{-- Harga Tiket --}}
                     <td>Rp {{ number_format($item->jadwal->harga ?? 0, 0, ',', '.') }}</td>
 
-                    {{-- Status --}}
                     <td>
                         <div class="status-wrapper" data-id="{{ $item->id_pemesanan }}">
 
-                            {{-- Badge --}}
                             <span class="status-badge badge
                                 @if($item->status == 'Confirmed') bg-success
                                 @elseif($item->status == 'Cancelled') bg-danger
@@ -101,7 +87,6 @@
                                 {{ $item->status }}
                             </span>
 
-                            {{-- Dropdown (hidden default) --}}
                             <form action="{{ route('pemesanan.pemesanantravel.updateStatus', $item->id_pemesanan) }}"
                                   method="POST" class="status-form d-none">
                                 @csrf
@@ -117,7 +102,6 @@
                         </div>
                     </td>
 
-                    {{-- Aksi --}}
                     <td class="text-nowrap">
                         <a href="{{ route('pemesanan.pemesanantravel.show', $item->id_pemesanan) }}" class="btn btn-info btn-sm">
                             <i class="bi bi-eye"></i>
@@ -159,20 +143,17 @@ $(document).ready(function() {
 });
 
 
-// === Inline Edit Status ===
 document.addEventListener("DOMContentLoaded", function () {
     document.querySelectorAll(".status-wrapper").forEach(function (wrapper) {
         let badge = wrapper.querySelector(".status-badge");
         let form = wrapper.querySelector(".status-form");
         let select = wrapper.querySelector(".status-select");
 
-        // Klik badge → tampilkan select
         badge.addEventListener("click", function () {
             badge.classList.add("d-none");
             form.classList.remove("d-none");
         });
 
-        // Saat pilih status → submit
         select.addEventListener("change", function () {
             form.submit();
         });

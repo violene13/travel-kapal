@@ -12,7 +12,6 @@
 
                 <div class="card-body">
 
-                    {{-- ALERT SUCCESS --}}
                     @if(session('success'))
                         <div class="alert alert-success">
                             {{ session('success') }}
@@ -24,7 +23,6 @@
                           enctype="multipart/form-data">
                         @csrf
 
-                        {{-- FOTO PROFIL --}}
                         @php
                             if ($penumpang->foto && file_exists(public_path('storage/' . $penumpang->foto))) {
                                 $fotoUrl = asset('storage/' . $penumpang->foto);
@@ -68,7 +66,6 @@
                             @enderror
                         </div>
 
-                        {{-- EMAIL (READONLY) --}}
                         <div class="mb-3">
                             <label class="form-label">Email</label>
                             <input type="email"
@@ -77,7 +74,6 @@
                                    readonly>
                         </div>
 
-                        {{-- NO HP --}}
                         <div class="mb-3">
                             <label class="form-label">No. HP</label>
                             <input type="text"
@@ -86,7 +82,6 @@
                                    value="{{ old('no_hp', $penumpang->no_hp) }}">
                         </div>
 
-                        {{-- ALAMAT --}}
                         <div class="mb-3">
                             <label class="form-label">Alamat</label>
                             <textarea name="alamat"
@@ -94,7 +89,6 @@
                                       rows="3">{{ old('alamat', $penumpang->alamat) }}</textarea>
                         </div>
 
-                        {{-- BUTTON --}}
                         <div class="d-flex justify-content-end">
                             <button type="submit" class="btn btn-primary">
                                 Simpan Perubahan

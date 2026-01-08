@@ -5,13 +5,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>@yield('title', 'Dashboard Admin')</title>
 
-  <!-- Bootstrap CSS -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
 
-  <!-- ✅ Bootstrap Icons (versi stabil & pasti muncul) -->
+
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
   
-  <!-- DataTables CSS -->
+
   <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap5.min.css">
 
   <style>
@@ -168,7 +167,6 @@
       box-shadow: 0 2px 6px rgba(0,0,0,0.1);
     }
 
-    /* === RESPONSIVE === */
     @media (max-width: 992px) {
       .sidebar { width: 220px; }
       .topbar { left: 220px; }
@@ -184,7 +182,6 @@
 </head>
 
 <body>
- <!-- === SIDEBAR === -->
 <aside class="sidebar">
   <div class="logo">
     <i class="bi bi-ship-fill"></i>
@@ -199,15 +196,15 @@
     <a href="{{ route('penumpang.penumpangpelayaran.index') }}">
       <i class="bi bi-person-vcard"></i> Data Penumpang
     </a>
-    <!-- Tambahkan ini -->
-<a href="{{ route('pemesanan.pemesananpelayaran.index') }}">
-  <i class="bi bi-journal-text"></i> Pemesanan Pelayaran
-</a>
+
+    <a href="{{ route('pemesanan.pemesananpelayaran.index') }}">
+      <i class="bi bi-journal-text"></i> Pemesanan Pelayaran
+    </a>
+
     <a href="{{ route('jalurpelayaran.index') }}">
       <i class="bi bi-signpost-split"></i> Jalur Pelayaran
     </a>
 
-    <!-- ✅ GANTI bi-ship -> bi-boat -->
     <a href="{{ route('datakapal.index') }}">
       <i class="bi bi-water"></i> Data Kapal
     </a>
@@ -230,7 +227,6 @@
   </nav>
 </aside>
 
-  <!-- === TOPBAR === -->
   <nav class="topbar">
     <div class="brand">
       <i class="bi bi-compass"></i>
@@ -248,7 +244,6 @@
     </div>
   </nav>
 
-  <!-- === MAIN CONTENT === -->
   <main class="content">
     <div class="content-inner">
       @yield('content')

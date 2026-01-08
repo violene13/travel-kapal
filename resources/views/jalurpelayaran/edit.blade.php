@@ -10,7 +10,6 @@
             @csrf
             @method('PUT')
 
-            {{-- Pilih Pelabuhan Asal --}}
             <div class="mb-3">
                 <label class="form-label">Lokasi Asal</label>
                 <select name="id_pelabuhan_asal" class="form-select" required>
@@ -24,7 +23,6 @@
                 </select>
             </div>
 
-            {{-- Pilih Pelabuhan Tujuan --}}
             <div class="mb-3">
                 <label class="form-label">Lokasi Tujuan</label>
                 <select name="id_pelabuhan_tujuan" class="form-select" required>
@@ -38,13 +36,11 @@
                 </select>
             </div>
 
-            {{-- Durasi --}}
             <div class="mb-3">
                 <label class="form-label">Durasi</label>
                 <input type="text" name="durasi" class="form-control" value="{{ $jalur->durasi }}" required>
             </div>
 
-            {{-- Jarak --}}
             <div class="mb-3">
                 <label class="form-label">Jarak (mil laut / km)</label>
                 <input type="number" name="jarak" class="form-control" value="{{ $jalur->jarak }}" required>

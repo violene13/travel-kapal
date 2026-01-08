@@ -5,11 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>@yield('title', 'Sealine')</title>
 
-<!-- Bootstrap -->
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
-<!-- Google Fonts -->
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
 
 <style>
@@ -72,13 +70,12 @@ main { padding-top:0 !important; }
 </style>
 </head>
 
-<body> <!-- DIBIARKAN -->
+<body> 
 
 @php
     $isPenumpang = Auth::guard('penumpang')->check();
 @endphp
 
-<!-- NAVBAR -->
 <nav class="navbar navbar-expand-lg navbar-dark">
 <div class="container">
     <a class="navbar-brand fw-bold" href="{{ route('sealine.homes.index') }}">SEALINE</a>
@@ -91,7 +88,6 @@ main { padding-top:0 !important; }
 
         <ul class="navbar-nav align-items-center">
 
-          {{-- Riwayat (HANYA PENUMPANG) --}}
     @if ($isPenumpang)
         <li class="nav-item dropdown">
             <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">
@@ -108,17 +104,14 @@ main { padding-top:0 !important; }
         </li>
     @endif
 
-    {{-- Bantuan --}}
     <li class="nav-item">
         <a class="nav-link" href="{{ route('sealine.bantuan.index') }}">Bantuan</a>
     </li>
 
-    {{-- Tentang Kami --}}
     <li class="nav-item">
         <a class="nav-link" href="{{ route('sealine.aboutus.index') }}">Tentang Kami</a>
     </li>
 
-    {{-- JIKA BELUM LOGIN (TIDAK PEDULI ADMIN) --}}
     @if (!$isPenumpang)
         <li class="nav-item">
             <a class="nav-link" href="{{ route('sealine.homes.index', ['login' => 1]) }}">
@@ -132,7 +125,6 @@ main { padding-top:0 !important; }
         </li>
     @endif
 
-{{-- JIKA PENUMPANG LOGIN --}}
 @if ($isPenumpang)
 @php
     $penumpang = Auth::guard('penumpang')->user();
@@ -186,8 +178,8 @@ main { padding-top:0 !important; }
 
         </ul>
 
-    </div> <!-- END collapse -->
-</div> <!-- END container -->
+    </div> 
+</div> 
 </nav>
 
 <!-- MODAL RIWAYAT -->
@@ -229,7 +221,7 @@ main { padding-top:0 !important; }
       </div>
       <div class="modal-body">
 
-        <!-- Perbaikan: Tambah @csrf -->
+        
         <form action="#" method="POST">
           @csrf
 
@@ -258,12 +250,10 @@ main { padding-top:0 !important; }
   </div>
 </div>
 
-<!-- Bootstrap JS -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 
-<!-- Navbar Scroll Effect -->
 <script>
 window.addEventListener('scroll', function() {
     const navbar = document.querySelector('.navbar');

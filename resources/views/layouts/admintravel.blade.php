@@ -5,25 +5,21 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>@yield('title', 'Dashboard Admin Travel')</title>
 
-  <!-- Bootstrap CSS -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
 
-  <!-- Bootstrap Icons -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
 
-  <!-- DataTables CSS -->
   <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
   <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.bootstrap5.min.css">
 
   <style>
-    /* === GLOBAL === */
     body {
       margin: 0;
       font-family: Arial, sans-serif;
       background-color: #F4F8FB;
       display: flex;
       min-height: 100vh;
-      overflow-x: visible; /* FIX: jangan hidden, agar scroll tabel muncul */
+      overflow-x: visible; 
     }
 
     a { text-decoration: none; }
@@ -183,7 +179,7 @@
     /* === MAIN CONTENT === */
     .content {
       flex: 1;
-      padding: 100px 40px 40px 290px; /* ruang utk sidebar & topbar */
+      padding: 100px 40px 40px 290px; 
       overflow-x: visible;
     }
 
@@ -195,7 +191,6 @@
       overflow-x: visible;
     }
 
-    /* RESPONSIVE FIX */
     @media (max-width: 900px) {
       .topbar { left: 0; }
       .content { padding: 90px 20px; }
@@ -204,7 +199,6 @@
 </head>
 
 <body>
-  <!-- === SIDEBAR === -->
   <aside class="sidebar">
     <div class="logo">
       <i class="bi bi-ship"></i>
@@ -225,7 +219,6 @@
     </nav>
   </aside>
 
-  <!-- === TOPBAR === -->
   <nav class="topbar">
     <div class="brand">
       <i class="bi bi-compass"></i>
@@ -246,12 +239,10 @@
     </div>
   </nav>
 
-  <!-- === MAIN CONTENT === -->
   <main class="content">
     @yield('content')
   </main>
 
-  <!-- === SCRIPTS === -->
   <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
   <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
@@ -261,7 +252,7 @@
 
 
   <script>
-    // Update waktu real-time di topbar
+    // realtime
     setInterval(() => {
       const now = new Date();
       document.getElementById('datetime').textContent =

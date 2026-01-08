@@ -24,7 +24,8 @@
                         <th>Tanggal Berangkat</th>
                         <th>Jam Berangkat</th>
                         <th>Jam Tiba</th>
-                        <th>Kelas</th>
+                        <th>Kelas</th>           
+                        <th>Kategori</th>
                         <th>Harga</th>
                         <th width="130">Aksi</th>
                     </tr>
@@ -43,13 +44,30 @@
                         <td>{{ $item->jam_berangkat ?? '-' }}</td>
                         <td>{{ $item->jam_tiba ?? '-' }}</td>
                         <td>{{ $item->kelas ?? '-' }}</td>
-                        <td>
-                            @if(!empty($item->harga))
-                                <span class="badge bg-primary">Rp {{ number_format($item->harga, 0, ',', '.') }}</span>
-                            @else
+                      <td>
+                            @forelse($item->ticketings()->get() as $t)
+                                <span class="badge bg-info text-dark mb-1">
+                                    {{ $t->jenis_tiket }}
+                                </span>
+                            @empty
                                 <span class="text-muted">-</span>
-                            @endif
+                            @endforelse
                         </td>
+
+                         </td>
+                                            <td class="text-start">
+                            @forelse($item->ticketings()->get() as $t)
+                                <div>
+                                    <span class="badge bg-secondary">
+                                        {{ $t->jenis_tiket }}
+                                    </span>
+                                    Rp {{ number_format($t->harga, 0, ',', '.') }}
+                                </div>
+                            @empty
+                                <span class="text-muted">-</span>
+                            @endforelse
+                        </td>
+
                         <td>
                             <a href="{{ route('jadwalpelayaran.edit', $item->id_jadwal) }}" class="btn btn-warning btn-sm me-1">
                                 <i class="bi bi-pencil-square"></i> Edit

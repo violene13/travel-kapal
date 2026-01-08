@@ -7,20 +7,18 @@ use Illuminate\Http\Request;
 
 class DataKapalController extends Controller
 {
-    // Menampilkan daftar kapal
+    
     public function index()
     {
         $kapal = DataKapal::all();
         return view('datakapal.index', compact('kapal'));
     }
 
-    // Form tambah kapal
     public function create()
     {
         return view('datakapal.create');
     }
 
-    // Simpan kapal baru
     public function store(Request $request)
     {
         $request->validate([
@@ -35,14 +33,12 @@ class DataKapalController extends Controller
                          ->with('success', 'Data kapal berhasil ditambahkan.');
     }
 
-    // Form edit kapal
     public function edit($id)
     {
         $kapal = DataKapal::findOrFail($id);
         return view('datakapal.edit', compact('kapal'));
     }
 
-    // Update kapal
     public function update(Request $request, $id)
     {
         $request->validate([
@@ -58,7 +54,6 @@ class DataKapalController extends Controller
                          ->with('success', 'Data kapal berhasil diperbarui.');
     }
 
-    // Hapus kapal
     public function destroy($id)
     {
         $kapal = DataKapal::findOrFail($id);

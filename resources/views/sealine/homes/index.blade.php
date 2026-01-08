@@ -4,9 +4,6 @@
 
 @section('content')
 
-<!-- =========================== -->
-<!-- 🔹 HERO SECTION -->
-<!-- =========================== -->
 <section class="hero position-relative text-white" style="margin-top: 0;">
     <img src="{{ asset('images/kapal.jpg') }}"
          alt="Sealine"
@@ -20,17 +17,12 @@
     </div>
 </section>
 
-<!-- =========================== -->
-<!-- 🔹 FORM CARI JADWAL -->
-<!-- =========================== -->
 <section class="container my-5">
     <h4 class="fw-bold mb-3">Cari Jadwal Anda</h4>
     <div class="p-4 border rounded-3 shadow-sm bg-white">
 
-        <!-- === FORM SEARCH === -->
         <form class="row g-3 align-items-end" method="GET" action="{{ route('jadwal.cari') }}">
 
-            <!-- Jenis Perjalanan -->
             <div class="col-md-2">
                 <label class="form-label fw-semibold">Jenis Perjalanan</label>
                 <select id="tripType" class="form-select" name="jenis_perjalanan">
@@ -39,7 +31,6 @@
                 </select>
             </div>
 
-            <!-- Penumpang -->
             <div class="col-md-3 position-relative" id="passengerDropdown">
                 <label class="form-label fw-semibold">Penumpang</label>
                 <div class="dropdown">
@@ -84,12 +75,10 @@
                 </div>
             </div>
 
-            <!-- input hidden penumpang -->
             <input type="hidden" name="dewasa" id="dewasaInput" value="0">
             <input type="hidden" name="anak" id="anakInput" value="0">
             <input type="hidden" name="bayi" id="bayiInput" value="0">
 
-            <!-- Kelas -->
             <div class="col-md-2">
                 <label class="form-label fw-semibold">Kelas</label>
                 <select class="form-select" name="kelas">
@@ -99,7 +88,6 @@
                 </select>
             </div>
 
-            <!-- Asal -->
             <div class="col-md-2">
                 <label class="form-label fw-semibold">Asal</label>
                 <select name="asal" class="form-select" required>
@@ -110,7 +98,6 @@
                 </select>
             </div>
 
-            <!-- Tujuan -->
             <div class="col-md-2">
                 <label class="form-label fw-semibold">Tujuan</label>
                 <select name="tujuan" class="form-select" required>
@@ -121,19 +108,16 @@
                 </select>
             </div>
 
-            <!-- Tanggal Berangkat -->
             <div class="col-md-2">
                 <label class="form-label fw-semibold">Tanggal Berangkat</label>
                 <input type="date" id="tanggalBerangkat" name="tanggal_berangkat" class="form-control">
             </div>
 
-            <!-- Tanggal Pulang -->
             <div class="col-md-2">
                 <label class="form-label fw-semibold">Tanggal Pulang</label>
                 <input type="date" id="tanggalPulang" name="tanggal_pulang" class="form-control" disabled>
             </div>
 
-            <!-- Tombol Search -->
             <div class="col-md-2 text-center">
                 <button type="submit" class="btn btn-primary w-100 mt-4">Search</button>
             </div>
@@ -142,9 +126,6 @@
     </div>
 </section>
 
-<!-- =========================== -->
-<!-- 🔹 JADWAL & RUTE POPULER -->
-<!-- =========================== -->
 <section class="container mb-5">
 
     <div class="d-flex justify-content-between align-items-center mb-4">
@@ -226,7 +207,7 @@
 </section>
 
 <!-- =========================== -->
-<!-- 🔹 LOGIN MODAL -->
+<!--  LOGIN MODAL -->
 <!-- =========================== -->
 <div class="modal fade" id="loginModal" tabindex="-1" aria-labelledby="loginModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered">
@@ -325,16 +306,11 @@ function togglePassword() {
 }
 </style>
 
-<!-- =========================== -->
-<!-- 🔹 SCRIPT -->
-<!-- =========================== -->
 <script>
-// Cegah dropdown tertutup saat klik di dalam
 document.querySelectorAll('#passengerDropdown .dropdown-menu').forEach(menu => {
     menu.addEventListener('click', e => e.stopPropagation());
 });
 
-// Tambah/kurang penumpang
 document.querySelectorAll('.count-btn').forEach(btn => {
     btn.addEventListener('click', () => {
         const type = btn.dataset.type;
@@ -347,18 +323,15 @@ document.querySelectorAll('.count-btn').forEach(btn => {
         const anak = parseInt(document.getElementById('anakCount').textContent);
         const bayi = parseInt(document.getElementById('bayiCount').textContent);
 
-        // Update tampilan ringkasan
         document.getElementById('passengerSummary').textContent =
             `${dewasa} Dewasa, ${anak} Anak, ${bayi} Bayi`;
 
-        // 🔥 WAJIB: update hidden inputs agar nilai ikut terkirim
         document.getElementById('dewasaInput').value = dewasa;
         document.getElementById('anakInput').value = anak;
         document.getElementById('bayiInput').value = bayi;
     });
 });
 
-// Aktif/nonaktifkan tanggal pulang
 document.getElementById('tripType').addEventListener('change', function() {
     const isPP = this.value === 'pp';
     const tanggalPulang = document.getElementById('tanggalPulang');
@@ -366,7 +339,6 @@ document.getElementById('tripType').addEventListener('change', function() {
     if (!isPP) tanggalPulang.value = '';
 });
 
-// Auto show modal login ketika diarahkan
 document.addEventListener('DOMContentLoaded', function() {
     @if (request()->has('showLogin') || session('showLogin'))
         var loginModal = new bootstrap.Modal(document.getElementById('loginModal'));

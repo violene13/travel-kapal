@@ -29,7 +29,6 @@ class Penumpang extends Authenticatable
         'password',
     ];
 
-    // ⛔ Matikan fitur remember_token karena tabel tidak punya kolom ini
     public function getRememberToken() { return null; }
     public function setRememberToken($value) { }
     public function getRememberTokenName() { return null; }

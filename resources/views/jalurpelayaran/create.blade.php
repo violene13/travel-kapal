@@ -6,12 +6,10 @@
 <div class="container mt-4">
     <h4 class="mb-3">Tambah Jalur Pelayaran</h4>
 
-    {{-- Card form --}}
     <div class="card shadow-sm border-0 p-4">
         <form action="{{ route('jalurpelayaran.store') }}" method="POST" id="formSimpan">
             @csrf
 
-            {{-- Pelabuhan Asal --}}
             <div class="mb-3">
                 <label class="form-label">Lokasi Asal</label>
                 <select name="id_pelabuhan_asal" class="form-select @error('id_pelabuhan_asal') is-invalid @enderror" required>
@@ -27,7 +25,6 @@
                 @enderror
             </div>
 
-            {{-- Pelabuhan Tujuan --}}
             <div class="mb-3">
                 <label class="form-label">Lokasi Tujuan</label>
                 <select name="id_pelabuhan_tujuan" class="form-select @error('id_pelabuhan_tujuan') is-invalid @enderror" required>
@@ -43,7 +40,6 @@
                 @enderror
             </div>
 
-            {{-- Durasi --}}
             <div class="mb-3">
                 <label class="form-label">Durasi</label>
                 <input type="text" name="durasi" class="form-control @error('durasi') is-invalid @enderror" value="{{ old('durasi') }}" placeholder="cth: 3 jam" required>
@@ -52,7 +48,6 @@
                 @enderror
             </div>
 
-            {{-- Jarak --}}
             <div class="mb-3">
                 <label class="form-label">Jarak (mil laut / km)</label>
                 <input type="number" name="jarak" class="form-control @error('jarak') is-invalid @enderror" value="{{ old('jarak') }}" placeholder="cth: 120" required>
@@ -61,7 +56,6 @@
                 @enderror
             </div>
 
-            {{-- Tombol --}}
             <div class="mt-4">
                 <button type="submit" class="btn btn-primary" id="btnSimpan">  Simpan</button>
                 <a href="{{ route('jalurpelayaran.index') }}" class="btn btn-secondary px-4">Kembali</a>
@@ -72,7 +66,7 @@
 </script>
 <script>
 document.getElementById('btnSimpan').addEventListener('click', function (e) {
-    e.preventDefault(); // tahan submit dulu
+    e.preventDefault(); 
 
     Swal.fire({
         title: 'Yakin menyimpan data?',

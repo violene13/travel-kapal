@@ -39,7 +39,7 @@
 
 <script>
 document.getElementById('btnSimpan').addEventListener('click', function (e) {
-    e.preventDefault(); // tahan submit dulu
+    e.preventDefault(); 
 
     Swal.fire({
         title: 'Yakin menyimpan data?',

@@ -6,7 +6,6 @@
 <link href="https://unpkg.com/aos@2.3.4/dist/aos.css" rel="stylesheet">
 
 <style>
-/* --- STYLE UTAMA --- */
 body {
   background: #f9fbfc;
 }
