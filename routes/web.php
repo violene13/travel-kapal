@@ -43,19 +43,32 @@ Route::get('/cari-jadwal', [JadwalPenumpangController::class, 'cari'])->name('ja
 | AUTH (LOGIN / REGISTER)
 |--------------------------------------------------------------------------
 */
+
+// FORM LOGIN (WAJIB ADA, TANPA guest)
+Route::get('/login', [LoginController::class, 'showLoginForm'])
+    ->name('login');
+
+// PROSES LOGIN (HANYA UNTUK GUEST)
 Route::middleware('guest')->group(function () {
 
-    Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
-    Route::post('/login', [LoginController::class, 'login'])->name('login.process');
+    Route::post('/login', [LoginController::class, 'login'])
+        ->name('login.process');
 
-    // LOGIN 
-    Route::post('/login-modal', [LoginController::class, 'loginModal'])->name('login.modal');
+    Route::post('/login-modal', [LoginController::class, 'loginModal'])
+        ->name('login.modal');
 
-    Route::get('/register', [LoginController::class, 'showRegisterForm'])->name('register');
-    Route::post('/register', [LoginController::class, 'register'])->name('register.process');
+    Route::get('/register', [LoginController::class, 'showRegisterForm'])
+        ->name('register');
+
+    Route::post('/register', [LoginController::class, 'register'])
+        ->name('register.process');
 });
 
-Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
+// LOGOUT (HARUS AUTH)
+Route::post('/logout', [LoginController::class, 'logout'])
+    ->middleware('auth')
+    ->name('logout');
+
 
 /*
 |--------------------------------------------------------------------------
@@ -79,7 +92,7 @@ Route::middleware('auth:web')->group(function () {
     Route::post('/', [TicketingController::class, 'store'])
         ->name('store');
 
-    // 🔑 PAKAI GROUP KEY
+    //  PAKAI GROUP KEY
     Route::get('/{groupKey}/edit', [TicketingController::class, 'edit'])
         ->name('edit');
 
@@ -233,10 +246,10 @@ Route::prefix('penumpang')->name('penumpang.')->group(function () {
 
 /*
 |--------------------------------------------------------------------------
-| AREA PENUMPANG (AUTH:PENUMPANG)
+| AREA PENUMPANG (AUTH:role PENUMPANG)
 |--------------------------------------------------------------------------
 */
-Route::middleware('auth:penumpang')->group(function () {
+Route::middleware(['auth:web', 'role:penumpang'])->group(function () {
 
     Route::get('/pemesanan/pengguna', [PemesananPenumpangController::class, 'index'])
         ->name('pemesanan.pemesananpengguna.index');
@@ -253,15 +266,35 @@ Route::middleware('auth:penumpang')->group(function () {
         [PemesananPenumpangController::class, 'show'])
         ->name('pemesanan.pemesananpengguna.show');
 
-    // ======================
-    // PEMBAYARAN PENUMPANG
-    // ======================
+    Route::put('/pemesanan/{id}/batal',
+        [PemesananPenumpangController::class, 'batal'])
+        ->name('pemesanan.pemesananpengguna.batal');
+
+    Route::delete('/pemesanan/{id}/hapus',
+        [PemesananPenumpangController::class, 'hapus'])
+        ->name('pemesanan.pemesananpengguna.hapus');
+
     Route::get('/pembayaran/{id_pemesanan}',
-        [PembayaranController::class, 'show']
-    )->name('pembayaran.show');
+        [PembayaranController::class, 'show'])
+        ->name('pembayaran.show');
 
+    Route::get('/profil', [PenumpangController::class, 'profil'])
+        ->name('penumpang.profil');
 
-    Route::get('/profil', [PenumpangController::class, 'profil'])->name('penumpang.profil');
     Route::post('/profil/update', [PenumpangController::class, 'updateProfil'])
         ->name('penumpang.profil.update');
+
+         Route::get(
+        '/pemesanan/{id}/eticket',
+        [PemesananPenumpangController::class, 'eticket']
+    )->name('pemesanan.eticket');
+
 });
+
+Route::post('/pembayaran/{id_pemesanan}', 
+    [PembayaranController::class, 'proses']
+)->name('pembayaran.proses');
+
+Route::get('/pembayaran/{id_pemesanan}/sukses',
+    [PembayaranController::class, 'sukses']
+)->name('pembayaran.sukses');

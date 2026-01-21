@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\JadwalPelayaran;
 use App\Models\DataPelabuhan;
 use App\Models\Ticketing;
+use Carbon\Carbon;
 
 class JadwalPenumpangController extends Controller
 {
@@ -22,18 +23,21 @@ class JadwalPenumpangController extends Controller
             ->orderBy('tanggal_berangkat', 'ASC')
             ->get();
 
-        // ambil harga ticketing per jadwal
-        $jadwal->each(function ($j) {
-            $harga = Ticketing::where('id_jalur', $j->id_jalur)
-                ->where('id_kapal', $j->id_kapal)
-                ->where('kelas', $j->kelas)
-                ->pluck('harga', 'jenis_tiket');
+        // DEFAULT PILIHAN
+        $defaultKelas = 'Ekonomi';
+        $defaultJenis = 'dewasa';
 
-            $j->harga_tiket = [
-                'dewasa' => (int) ($harga['Dewasa'] ?? 0),
-                'anak'   => (int) ($harga['Anak'] ?? 0),
-                'bayi'   => (int) ($harga['Bayi'] ?? 0),
-            ];
+        $jadwal->each(function ($j) use ($defaultKelas, $defaultJenis) {
+
+            $ticket = Ticketing::where('id_jalur', $j->id_jalur)
+                ->where('id_kapal', $j->id_kapal)
+                ->whereRaw('LOWER(kelas) = ?', [strtolower($defaultKelas)])
+                ->whereRaw('LOWER(jenis_tiket) = ?', [$defaultJenis])
+                ->first();
+
+            $j->kelas       = $defaultKelas;
+            $j->jenis_tiket = $defaultJenis;
+            $j->harga       = (int) ($ticket->harga ?? 0);
         });
 
         $pelabuhan = DataPelabuhan::all();
@@ -47,32 +51,73 @@ class JadwalPenumpangController extends Controller
         ]);
     }
 
+public function detail($id)
+{
     // ===============================
-    // DETAIL JADWAL
+    // AMBIL JADWAL + RELASI
     // ===============================
-    public function detail($id)
-    {
-        $jadwal = JadwalPelayaran::with([
-                'kapal',
-                'jalur.pelabuhanAsal',
-                'jalur.pelabuhanTujuan',
-            ])
-            ->where('id_jadwal', $id)
-            ->firstOrFail();
+    $jadwal = JadwalPelayaran::with([
+        'kapal',
+        'jalur.pelabuhanAsal',
+        'jalur.pelabuhanTujuan',
+    ])
+    ->where('id_jadwal', $id)
+    ->firstOrFail();
 
-        $harga = Ticketing::where('id_jalur', $jadwal->id_jalur)
-            ->where('id_kapal', $jadwal->id_kapal)
-            ->where('kelas', $jadwal->kelas)
-            ->pluck('harga', 'jenis_tiket');
+    // ===============================
+    // AMBIL HARGA TICKETING
+    // ===============================
+    $ticketings = Ticketing::where('id_jalur', $jadwal->id_jalur)
+        ->where('id_kapal', $jadwal->id_kapal)
+        ->get();
 
-        $jadwal->harga_tiket = [
-            'dewasa' => (int) ($harga['Dewasa'] ?? 0),
-            'anak'   => (int) ($harga['Anak'] ?? 0),
-            'bayi'   => (int) ($harga['Bayi'] ?? 0),
-        ];
+    /**
+     * FORMAT:
+     * [
+     *   'Ekonomi' => ['dewasa'=>150000,'anak'=>100000,'bayi'=>25000],
+     *   'Bisnis'  => ['dewasa'=>250000,'anak'=>175000,'bayi'=>50000]
+     * ]
+     */
+    $hargaPerKelas = [];
 
-        return view('jadwalpelayaran.detail', compact('jadwal'));
+    foreach ($ticketings as $t) {
+        $kelas = ucfirst(strtolower($t->kelas));
+        $jenis = strtolower($t->jenis_tiket);
+
+        $hargaPerKelas[$kelas][$jenis] = (int) $t->harga;
     }
+
+    // ===============================
+    // HITUNG DURASI REAL (AKURAT)
+    // ===============================
+    $berangkat = Carbon::parse(
+        $jadwal->tanggal_berangkat . ' ' . $jadwal->jam_berangkat
+    );
+
+    $tiba = Carbon::parse(
+        $jadwal->tanggal_tiba . ' ' . $jadwal->jam_tiba
+    );
+
+    // JIKA TIBA < BERANGKAT (LINTAS HARI)
+    if ($tiba->lessThan($berangkat)) {
+        $tiba->addDay();
+    }
+
+    $durasiMenit = $berangkat->diffInMinutes($tiba);
+
+    $jam   = intdiv($durasiMenit, 60);
+    $menit = $durasiMenit % 60;
+
+    $jadwal->durasi = $menit > 0
+        ? "{$jam} Jam {$menit} Menit"
+        : "{$jam} Jam";
+
+    return view('jadwalpelayaran.detail', compact(
+        'jadwal',
+        'hargaPerKelas'
+    ));
+}
+
 
     // ===============================
     // PENCARIAN JADWAL
@@ -81,8 +126,9 @@ class JadwalPenumpangController extends Controller
     {
         $asal    = $request->asal;
         $tujuan  = $request->tujuan;
-        $kelas   = $request->kelas;
         $tanggal = $request->tanggal_berangkat;
+
+        $kelas = $request->kelas ?? 'Ekonomi';
 
         $dewasa = $request->dewasa ?? 1;
         $anak   = $request->anak ?? 0;
@@ -103,17 +149,20 @@ class JadwalPenumpangController extends Controller
                     fn ($j) => $j->where('lokasi', $tujuan)
                 )
             )
-            ->when($kelas, fn ($q) => $q->where('kelas', $kelas))
-            ->when($tanggal, fn ($q) => $q->whereDate('tanggal_berangkat', $tanggal))
+            ->when($tanggal, fn ($q) =>
+                $q->whereDate('tanggal_berangkat', $tanggal)
+            )
             ->orderBy('tanggal_berangkat', 'ASC')
             ->get();
 
-        // inject harga
-        $jadwal->each(function ($j) {
+        $jadwal->each(function ($j) use ($kelas) {
+
             $harga = Ticketing::where('id_jalur', $j->id_jalur)
                 ->where('id_kapal', $j->id_kapal)
-                ->where('kelas', $j->kelas)
+                ->whereRaw('LOWER(kelas) = ?', [strtolower($kelas)])
                 ->pluck('harga', 'jenis_tiket');
+
+            $j->kelas = $kelas;
 
             $j->harga_tiket = [
                 'dewasa' => (int) ($harga['dewasa'] ?? 0),

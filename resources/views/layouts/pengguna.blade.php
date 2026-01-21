@@ -73,8 +73,10 @@ main { padding-top:0 !important; }
 <body> 
 
 @php
-    $isPenumpang = Auth::guard('penumpang')->check();
+    $user = Auth::user();
+    $isPenumpang = $user && $user->role === 'penumpang';
 @endphp
+
 
 <nav class="navbar navbar-expand-lg navbar-dark">
 <div class="container">
@@ -127,9 +129,10 @@ main { padding-top:0 !important; }
 
 @if ($isPenumpang)
 @php
-    $penumpang = Auth::guard('penumpang')->user();
+    $penumpang = \App\Models\Penumpang::where('id_user', $user->id)->first();
 
     if (
+        !$penumpang ||
         empty($penumpang->foto) ||
         !\Illuminate\Support\Facades\Storage::disk('public')->exists($penumpang->foto)
     ) {
@@ -138,8 +141,6 @@ main { padding-top:0 !important; }
         $fotoProfil = asset('storage/' . $penumpang->foto);
     }
 @endphp
-
-
 
 <li class="nav-item dropdown ms-3">
     <a class="nav-link dropdown-toggle d-flex align-items-center gap-2"
@@ -182,24 +183,6 @@ main { padding-top:0 !important; }
 </div> 
 </nav>
 
-<!-- MODAL RIWAYAT -->
-<div class="modal fade" id="riwayatModal" tabindex="-1" aria-labelledby="riwayatModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered modal-lg">
-    <div class="modal-content">
-      <div class="modal-header" style="background:#004080; color:white;">
-        <h5 class="modal-title fw-bold" id="riwayatModalLabel">Riwayat Pemesanan</h5>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-      </div>
-      <div class="modal-body">
-        <p class="text-muted text-center">Belum ada riwayat pemesanan.</p>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
-      </div>
-    </div>
-  </div>
-</div>
-
 <!-- ISI HALAMAN -->
 <main style="min-height: calc(100vh - 120px); margin-top: 90px;">
     @yield('content')
@@ -222,7 +205,8 @@ main { padding-top:0 !important; }
       <div class="modal-body">
 
         
-        <form action="#" method="POST">
+        <form action="{{ route('login.process') }}" method="POST">
+
           @csrf
 
           <div class="mb-3 position-relative">

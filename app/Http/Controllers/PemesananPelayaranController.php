@@ -12,7 +12,13 @@ class PemesananPelayaranController extends Controller
     {
         $this->validatePelayaran();
 
-        $query = Pemesanan::with(['penumpang', 'jadwal.kapal', 'jadwal.jalur']);
+      $query = Pemesanan::with([
+        'penumpang',
+        'jadwal.kapal',
+        'jadwal.jalur',
+        'detailPenumpang' 
+    ]);
+
 
         // Admin pel lihat data pemesanan
         if ($request->search) {
@@ -28,14 +34,18 @@ class PemesananPelayaranController extends Controller
     }
 
     public function show($id)
-    {
-        $this->validatePelayaran();
+{
+    $this->validatePelayaran();
 
-        $pemesanan = Pemesanan::with(['penumpang', 'jadwal.kapal', 'jadwal.jalur'])
-            ->findOrFail($id);
+    $pemesanan = Pemesanan::with([
+        'penumpang',
+        'jadwal.kapal',
+        'jadwal.jalur',
+        'detailPenumpang' 
+    ])->findOrFail($id);
 
-        return view('pemesanan.pemesananpelayaran.show', compact('pemesanan'));
-    }
+    return view('pemesanan.pemesananpelayaran.show', compact('pemesanan'));
+}
 
     public function updateStatus(Request $request, $id)
     {

@@ -210,7 +210,7 @@
         <i class="bi bi-house"></i> Dashboard
       </a>
       <a href="{{ route('penumpang.penumpangtravel.index') }}" class="{{ request()->routeIs('penumpang.penumpangtravel.*') ? 'active' : '' }}">
-        <i class="bi bi-people"></i> Data Penumpang
+        <i class="bi bi-people"></i> Akun Penumpang
       </a>
       <a href="{{ route('pemesanan.pemesanantravel.index') }}" class="{{ request()->routeIs('pemesanan.pemesanantravel.*') ? 'active' : '' }}">
         <i class="bi bi-ticket-perforated"></i> Pemesanan

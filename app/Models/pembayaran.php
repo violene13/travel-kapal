@@ -11,12 +11,12 @@ class Pembayaran extends Model
     public $timestamps = false;
 
     protected $fillable = [
-        'id_pemesanan',
-        'id_metode',
-        'tanggal_bayar',
-        'jumlah_bayar',
-        'status_bayar'
-    ];
+    'id_pemesanan',
+    'id_metode',
+    'tanggal_bayar',
+    'jumlah_bayar',
+    'status_pembayaran'
+];
 
     public function pemesanan()
     {
@@ -27,4 +27,5 @@ class Pembayaran extends Model
     {
         return $this->belongsTo(MetodePembayaran::class, 'id_metode');
     }
+    
 }

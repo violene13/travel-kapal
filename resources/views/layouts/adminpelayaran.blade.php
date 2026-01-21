@@ -194,7 +194,7 @@
     </a>
 
     <a href="{{ route('penumpang.penumpangpelayaran.index') }}">
-      <i class="bi bi-person-vcard"></i> Data Penumpang
+      <i class="bi bi-person-vcard"></i> Data Akun Penumpang
     </a>
 
     <a href="{{ route('pemesanan.pemesananpelayaran.index') }}">

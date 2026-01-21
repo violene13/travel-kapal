@@ -17,9 +17,10 @@ class JadwalPelayaran extends Model
         'id_jalur',
         'id_kapal',
         'tanggal_berangkat',
+        'tanggal_tiba',
         'jam_berangkat',
         'jam_tiba',
-        'kelas',
+        
     ];
 
     public function jalur()
@@ -39,10 +40,10 @@ class JadwalPelayaran extends Model
      * - kelas sama
      * - hanya yang ADA di database
      */
-    public function ticketings()
-    {
-        return Ticketing::where('id_jalur', $this->id_jalur)
-            ->where('id_kapal', $this->id_kapal)
-            ->where('kelas', $this->kelas);
-    }
+    public function getTicketings()
+{
+    return Ticketing::where('id_jalur', $this->id_jalur)
+        ->where('id_kapal', $this->id_kapal)
+        ->get();
+}
 }

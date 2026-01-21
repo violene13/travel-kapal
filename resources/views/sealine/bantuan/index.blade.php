@@ -202,7 +202,8 @@ body {
   <h2>FAQ</h2>
 
   <div class="search-box mb-4">
-    <input type="text" placeholder="Ketik pertanyaan anda ...">
+    <input type="text" id="searchFaq" placeholder="Ketik pertanyaan anda ...">
+
     <i class="fa-solid fa-magnifying-glass"></i>
   </div>
 
@@ -256,6 +257,10 @@ body {
         <div class="accordion-body">
           Reschedule dapat dilakukan maksimal 24 jam sebelum keberangkatan dengan menghubungi Customer Service dan menyertakan kode tiket Anda.
         </div>
+
+        <!-- HASIL PENCARIAN FAQ (DINAMIS) -->
+<div id="hasilPencarianFaq" class="mt-4"></div>
+
       </div>
     </div>
   </div>
@@ -312,4 +317,53 @@ body {
 <script>
 AOS.init({ duration: 1000, once: true });
 </script>
+<script>
+document.getElementById('searchFaq').addEventListener('keyup', function () {
+    let keyword = this.value.trim();
+    let hasilBox = document.getElementById('hasilPencarianFaq');
+
+    if (keyword.length < 2) {
+        hasilBox.innerHTML = '';
+        return;
+    }
+
+    fetch("{{ route('sealine.bantuan.cari') }}?q=" + keyword)
+        .then(response => response.json())
+        .then(data => {
+            let html = '';
+
+            if (data.length === 0) {
+                html = `
+                  <div class="alert alert-warning">
+                    Pertanyaan tidak ditemukan.
+                  </div>`;
+            } else {
+                html += `<h5 class="mb-3">Hasil Pencarian</h5>`;
+
+                data.forEach((faq, index) => {
+                    html += `
+                    <div class="accordion mb-2">
+                      <div class="accordion-item">
+                        <h2 class="accordion-header">
+                          <button class="accordion-button collapsed"
+                            data-bs-toggle="collapse"
+                            data-bs-target="#hasilFaq${index}">
+                            ${faq.pertanyaan}
+                          </button>
+                        </h2>
+                        <div id="hasilFaq${index}" class="accordion-collapse collapse">
+                          <div class="accordion-body">
+                            ${faq.jawaban}
+                          </div>
+                        </div>
+                      </div>
+                    </div>`;
+                });
+            }
+
+            hasilBox.innerHTML = html;
+        });
+});
+</script>
+
 @endsection

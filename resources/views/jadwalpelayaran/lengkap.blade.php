@@ -1,127 +1,110 @@
-        @extends('layouts.pengguna')
+@extends('layouts.pengguna')
 
-        @section('title', 'Jadwal Pelayaran Lengkap')
+@section('title', 'Jadwal Pelayaran Lengkap')
 
-        @section('content')
-        <div class="container py-4">
+@section('content')
+<div class="container py-4">
 
-            <form action="{{ route('jadwal.cari') }}" method="GET" class="card p-3 mb-4 shadow-sm border-0">
-                <div class="row g-3">
+    <h2 class="fw-bold mb-4">Jadwal Pelayaran</h2>
 
-                    @if(request()->filled('asal') || request()->filled('tujuan') || request()->filled('tanggal_berangkat'))
-                        <div class="p-3 mb-4 rounded-3" 
-                            style="background: #e8f3ff; border-left: 6px solid #2196f3;">
+    @if($jadwal->count() === 0)
+        <div class="alert alert-info">
+            Belum ada jadwal pelayaran tersedia.
+        </div>
+    @endif
 
-                            <h5 class="fw-bold text-primary mb-1">
-                                {{ request('asal') }} ➜ {{ request('tujuan') }}
-                            </h5>
+    <div class="row g-4">
+        @foreach($jadwal as $j)
+        <div class="col-md-6">
+            <div class="card shadow-sm border-0 h-100">
 
-                            @php
-                                $dewasa = request('dewasa', 0);
-                                $anak = request('anak', 0);
-                                $bayi = request('bayi', 0);
-                                $totalPenumpang = $dewasa + $anak + $bayi;
-                            @endphp
+                {{-- FOTO KAPAL --}}
+                @if($j->kapal && $j->kapal->gambar_kapal)
+                    <img
+                        src="{{ asset('images/kapal/' . $j->kapal->gambar_kapal) }}"
+                        class="card-img-top"
+                        style="height:180px; object-fit:cover;"
+                        alt="Foto Kapal">
+                @endif
 
-                            <p class="mb-0 text-dark">
-                                {{ request('tanggal_berangkat') 
-                                    ? \Carbon\Carbon::parse(request('tanggal_berangkat'))->format('D, d M Y')
-                                    : 'Tanggal tidak dipilih'
-                                }}
+                <div class="card-body d-flex flex-column">
 
-                                &nbsp; | &nbsp;
+                    {{-- NAMA KAPAL --}}
+                    <h5 class="fw-bold mb-1">
+                        {{ $j->kapal->nama_kapal ?? 'Nama kapal tidak tersedia' }}
+                    </h5>
 
-                                {{ $totalPenumpang }} penumpang
+                    {{-- RUTE --}}
+                    <p class="text-muted mb-2">
+                        {{ $j->jalur->pelabuhanAsal->lokasi ?? '-' }}
+                        →
+                        {{ $j->jalur->pelabuhanTujuan->lokasi ?? '-' }}
+                    </p>
 
-                                &nbsp; | &nbsp;
+                    {{-- TANGGAL & JAM --}}
+                    <p class="mb-2">
+                        <i class="bi bi-calendar-date"></i>
+                        {{ \Carbon\Carbon::parse($j->tanggal_berangkat)->format('d M Y') }}
+                        &nbsp; | &nbsp;
+                        <i class="bi bi-clock"></i>
+                        {{ substr($j->jam_berangkat,0,5) }}
+                        -
+                        {{ substr($j->jam_tiba,0,5) }}
+                    </p>
 
-                                {{ request('kelas') ?? 'Semua Kelas' }}
-                            </p>
-                        </div>
-                    @endif
+                    {{-- KELAS & JENIS TIKET (DEFAULT) --}}
+                    <p class="mb-2">
+                        <i class="bi bi-building"></i>
+                        <b>{{ $j->kelas ?? 'Ekonomi' }}</b>
+                        <span class="text-muted">
+                            ({{ ucfirst($j->jenis_tiket ?? 'dewasa') }})
+                        </span>
+                    </p>
 
-                </div>
-            </form>
+                    {{-- HARGA (FIX TOTAL) --}}
+                    @php
+                        $harga = 0;
 
-            <h2 class="mb-4 fw-bold text-primary">Jadwal</h2>
+                        if (isset($j->harga) && $j->harga > 0) {
+                            $harga = $j->harga;
+                        } elseif (isset($j->harga_tiket['dewasa'])) {
+                            $harga = $j->harga_tiket['dewasa'];
+                        }
+                    @endphp
 
-            @if($jadwal->count() === 0)
-                <div class="alert alert-info">Belum ada jadwal pelayaran tersedia.</div>
-            @endif
+                    <p class="fw-bold text-primary fs-5 mb-3">
+                        Rp {{ number_format($harga, 0, ',', '.') }}
+                    </p>
 
-            <div class="row g-4">
-                @foreach($jadwal as $j)
-                <div class="col-md-6">
-                    <div class="card shadow-sm border-0">
+                    {{-- AKSI --}}
+                    <div class="mt-auto text-end">
+                        <a href="{{ route('jadwal.detail', $j->id_jadwal) }}"
+                           class="btn btn-outline-primary btn-sm">
+                            Detail
+                        </a>
 
-                        @if($j->kapal && $j->kapal->gambar_kapal)
-                            <img 
-                                src="{{ asset('images/kapal/' . $j->kapal->gambar_kapal) }}"
-                                class="card-img-top"
-                                style="height: 180px; width: 100%; object-fit: cover; object-position: center;"
-                                alt="Foto Kapal">
+                        @if(Auth::check() && Auth::user()->role === 'penumpang')
+                            <a href="{{ route('pemesanan.pemesananpengguna.create', $j->id_jadwal) }}"
+                            class="btn btn-primary btn-sm ms-2">
+                                Pesan Sekarang
+                            </a>
+                        @else
+                            <a href="{{ route('jadwal.lengkap', ['login' => 1]) }}"
+                            class="btn btn-primary btn-sm ms-2">
+                                Pesan Sekarang
+                            </a>
                         @endif
 
-                        <div class="card-body">
-
-                            <h5 class="fw-bold text-dark">
-                                {{ $j->kapal->nama_kapal ?? 'Nama kapal tidak tersedia' }}
-                            </h5>
-
-                            <p class="fw-semibold text-dark mb-2">
-                                {{ $j->jalur->pelabuhanAsal->lokasi ?? '-' }}
-                                →
-                                {{ $j->jalur->pelabuhanTujuan->lokasi ?? '-' }}
-                            </p>
-
-                            <p class="mb-2">
-                                <i class="bi bi-calendar-date"></i>
-                                {{ \Carbon\Carbon::parse($j->tanggal_berangkat)->format('d M Y') }}
-
-                                &nbsp; | &nbsp;
-
-                                <i class="bi bi-clock"></i>
-                                {{ substr($j->jam_berangkat, 0, 5) }}
-                                -
-                                {{ substr($j->jam_tiba, 0, 5) }}
-                            </p>
-
-                            <p class="mb-2">
-                                <i class="bi bi-building"></i>
-                                <b>{{ $j->kelas ?? 'Tidak ada kelas' }}</b>
-                            </p>
-
-                            <p class="fw-semibold text-primary mb-3">
-                                Rp {{ number_format($j->harga ?? 0, 0, ',', '.') }}
-                            </p>
-
-                            <div class="mt-3 text-end">
-                                <a href="{{ route('jadwal.detail', $j->id_jadwal) }}" class="btn btn-primary">
-                                    Detail
-                                </a>
-
-                                @if(auth('penumpang')->check())
-                                    <a href="{{ route('pemesanan.pemesananpengguna.create', $j->id_jadwal) }}"
-                                    class="btn btn-primary ms-2">
-                                        Pesan Sekarang
-                                    </a>
-                                @else
-                                    <a href="#"
-                                    class="btn btn-primary ms-2"
-                                    data-bs-toggle="modal"
-                                    data-bs-target="#loginModal">
-                                        Pesan Sekarang
-                                    </a>
-                                @endif
-                            </div>
-
-                        </div>
                     </div>
-                </div>
-                @endforeach
-            </div>
 
+                </div>
+            </div>
         </div>
+        @endforeach
+    </div>
+
+</div>
+
 
         <!-- =========================== -->
         <!--  LOGIN MODAL -->
@@ -194,6 +177,8 @@
             </div>
         </div>
         </div>
+        
+        @endsection
 
         @if($errors->has('login_error') || session('success'))
         <script>
@@ -237,4 +222,3 @@
         to { opacity: 1; transform: scale(1); }
         }
         </style>
-        @endsection

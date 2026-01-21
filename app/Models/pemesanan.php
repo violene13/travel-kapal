@@ -14,28 +14,59 @@ class Pemesanan extends Model
     public $timestamps = false;
 
     protected $fillable = [
-        'id_penumpang',
+        'sumber_pemesanan',
+        'id_penumpang',      // pemesan utama
         'id_jadwal',
         'id_admin_travel',
         'tanggal_pesan',
+        'total_harga',
         'status',
     ];
 
-    
-    public function penumpang()
-    {
-        return $this->belongsTo(Penumpang::class, 'id_penumpang', 'id_penumpang');
-    }
-
-   
+    /**
+     * JADWAL PELAYARAN
+     */
     public function jadwal()
     {
-        return $this->belongsTo(JadwalPelayaran::class, 'id_jadwal', 'id_jadwal');
+        return $this->belongsTo(
+            JadwalPelayaran::class,
+            'id_jadwal',
+            'id_jadwal'
+        );
     }
 
-   
-    public function travel()
+    /**
+     * ADMIN TRAVEL (jika sumber = admin_travel)
+     */
+    public function adminTravel()
     {
-        return $this->belongsTo(User::class, 'id_admin_travel', 'id');
+        return $this->belongsTo(
+            AdminTravel::class,
+            'id_admin_travel',
+            'id_admin_travel'
+        );
+    }
+    /**
+     * PENUMPANG PEMESAN (1 orang)
+     */
+public function penumpang()
+{
+    return $this->belongsTo(
+        Penumpang::class,
+        'id_penumpang',
+        'id_penumpang'
+    );
+}
+
+    /**
+     * DETAIL PENUMPANG (BANYAK)
+     */
+    public function detailPenumpang()
+    {
+        return $this->hasMany(
+            PemesananPenumpang::class,
+            'id_pemesanan',
+            'id_pemesanan'
+        );
     }
 }

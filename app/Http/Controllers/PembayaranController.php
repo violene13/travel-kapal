@@ -8,55 +8,64 @@ use App\Models\Pemesanan;
 
 class PembayaranController extends Controller
 {
-    /**
-     * Tampilkan halaman pembayaran
-     */
     public function show($id_pemesanan)
     {
-        // =========================
-        // Ambil data pemesanan utama
-        // =========================
-        $pemesanan = DB::table('pemesanan as p')
-            ->join('jadwal as j', 'p.id_jadwal', '=', 'j.id_jadwal')
-            ->join('kapal as k', 'j.id_kapal', '=', 'k.id_kapal')
-            ->join('jalur as jl', 'j.id_jalur', '=', 'jl.id_jalur')
-            ->where('p.id_pemesanan', $id_pemesanan)
-            ->select(
-                'p.id_pemesanan',
-                'p.tanggal_pesan',
-                'p.status',
-                'j.tanggal_berangkat',
-                'k.nama_kapal',
-                'jl.nama_jalur'
-            )
-            ->first();
+        $pemesanan = Pemesanan::where('id_pemesanan', $id_pemesanan)
+            ->firstOrFail();
 
-        if (!$pemesanan) {
-            abort(404, 'Pemesanan tidak ditemukan');
+        // kalau sudah confirmed, langsung ke e-ticket
+        if ($pemesanan->status === 'Confirmed') {
+            return redirect()->route('pemesanan.eticket', $id_pemesanan);
         }
 
-        // =========================
-        // Ambil detail penumpang
-        // =========================
         $penumpang = DB::table('pemesanan_penumpang')
             ->where('id_pemesanan', $id_pemesanan)
-            ->select(
-                'nama_penumpang',
-                'jenis_tiket',
-                'kelas',
-                'harga'
-            )
             ->get();
 
-        // =========================
-        // Hitung total bayar
-        // =========================
         $total = $penumpang->sum('harga');
+
+        $metodePembayaran = DB::table('metode_pembayaran')->get();
 
         return view('pemesanan.pemesananpengguna.pembayaran', compact(
             'pemesanan',
             'penumpang',
-            'total'
+            'total',
+            'metodePembayaran'
         ));
+    }
+
+    public function proses(Request $request, $id_pemesanan)
+    {
+        $request->validate([
+            'id_metode' => 'required|exists:metode_pembayaran,id_metode'
+        ]);
+
+        // 🔴 HARUS Pending (kapital)
+        $pemesanan = Pemesanan::where('id_pemesanan', $id_pemesanan)
+            ->where('status', 'Pending')
+            ->firstOrFail();
+
+        DB::transaction(function () use ($pemesanan, $request) {
+
+            $total = DB::table('pemesanan_penumpang')
+                ->where('id_pemesanan', $pemesanan->id_pemesanan)
+                ->sum('harga');
+
+            DB::table('pembayaran')->insert([
+                'id_pemesanan'      => $pemesanan->id_pemesanan,
+                'id_metode'         => $request->id_metode,
+                'tanggal_bayar'     => now(),
+                'jumlah_bayar'      => $total,
+                'status_pembayaran' => 'Confirmed'
+            ]);
+
+            $pemesanan->update([
+                'status' => 'Confirmed'
+            ]);
+        });
+
+        return redirect()
+            ->route('pemesanan.eticket', $pemesanan->id_pemesanan)
+            ->with('success', 'Pembayaran berhasil, e-ticket siap dicetak');
     }
 }

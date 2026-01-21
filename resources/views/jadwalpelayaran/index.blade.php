@@ -8,83 +8,74 @@
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h3 class="page-title mb-0">Daftar Jadwal Pelayaran</h3>
         <a href="{{ route('jadwalpelayaran.create') }}" class="btn btn-success shadow-sm">
-           Tambah 
+            Tambah
         </a>
     </div>
 
-     <div class="card border-0 rounded-4">
-    <div class="card-body">
-        <div class="table-responsive">
-            <table id="jadwalpelayaranTable" class="table table-bordered table-striped text-center align-middle mb-0">
-                <thead class="table-header">
-                    <tr>
-                        <th>No</th>
-                        <th>Nama Kapal</th>
-                        <th>Rute</th>
-                        <th>Tanggal Berangkat</th>
-                        <th>Jam Berangkat</th>
-                        <th>Jam Tiba</th>
-                        <th>Kelas</th>           
-                        <th>Kategori</th>
-                        <th>Harga</th>
-                        <th width="130">Aksi</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach ($jadwal as $index => $item)
-                    <tr>
-                        <td>{{ $index + 1 }}</td>
-                        <td>{{ $item->kapal->nama_kapal ?? '-' }}</td>
-                            <td>{{ $item->jalur->rute ?? '-' }}</td>
-                        <td>
-                            {{ $item->tanggal_berangkat 
-                                ? \Carbon\Carbon::parse($item->tanggal_berangkat)->translatedFormat('d F Y') 
-                                : '-' }}
-                        </td>
-                        <td>{{ $item->jam_berangkat ?? '-' }}</td>
-                        <td>{{ $item->jam_tiba ?? '-' }}</td>
-                        <td>{{ $item->kelas ?? '-' }}</td>
-                      <td>
-                            @forelse($item->ticketings()->get() as $t)
-                                <span class="badge bg-info text-dark mb-1">
-                                    {{ $t->jenis_tiket }}
-                                </span>
-                            @empty
-                                <span class="text-muted">-</span>
-                            @endforelse
-                        </td>
+    <div class="card border-0 rounded-4">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table id="jadwalpelayaranTable"
+                       class="table table-bordered table-striped text-center align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th>No</th>
+                            <th>Nama Kapal</th>
+                            <th>Rute</th>
+                            <th>Tanggal Berangkat</th>
+                            <th>Tanggal Tiba</th>
+                            <th>Jam Berangkat</th>
+                            <th>Jam Tiba</th>
+                            <th width="130">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach ($jadwal as $index => $item)
+                        <tr>
+                            <td>{{ $index + 1 }}</td>
 
-                         </td>
-                                            <td class="text-start">
-                            @forelse($item->ticketings()->get() as $t)
-                                <div>
-                                    <span class="badge bg-secondary">
-                                        {{ $t->jenis_tiket }}
-                                    </span>
-                                    Rp {{ number_format($t->harga, 0, ',', '.') }}
-                                </div>
-                            @empty
-                                <span class="text-muted">-</span>
-                            @endforelse
-                        </td>
+                            <td>{{ $item->kapal->nama_kapal ?? '-' }}</td>
 
-                        <td>
-                            <a href="{{ route('jadwalpelayaran.edit', $item->id_jadwal) }}" class="btn btn-warning btn-sm me-1">
-                                <i class="bi bi-pencil-square"></i> Edit
-                            </a>
-                            <form action="{{ route('jadwalpelayaran.destroy', $item->id_jadwal) }}" method="POST" class="d-inline">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit" class="btn btn-danger btn-sm"
-                                    onclick="return confirm('Yakin ingin menghapus jadwal ini?')">
-                                    <i class="bi bi-trash"></i> Hapus
-                                </button>
-                            </form>
-                        </td>
-                    </tr>
-                    @endforeach
-                </tbody>
-            </table>
+                            <td>
+                                {{ $item->jalur->pelabuhanAsal->lokasi ?? '-' }}
+                                →
+                                {{ $item->jalur->pelabuhanTujuan->lokasi ?? '-' }}
+                            </td>
+
+                            <td>
+                                {{ \Carbon\Carbon::parse($item->tanggal_berangkat)
+                                    ->translatedFormat('d F Y') }}
+                            </td>
+                            <td>
+                                {{ \Carbon\Carbon::parse($item->tanggal_tiba)
+                                    ->translatedFormat('d F Y') }}
+                            </td>
+
+                            <td>{{ $item->jam_berangkat }}</td>
+                            <td>{{ $item->jam_tiba }}</td>
+
+                            <td>
+                                <a href="{{ route('jadwalpelayaran.edit', $item->id_jadwal) }}"
+                                   class="btn btn-warning btn-sm me-1">
+                                    Edit
+                                </a>
+
+                                <form action="{{ route('jadwalpelayaran.destroy', $item->id_jadwal) }}"
+                                      method="POST" class="d-inline">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit"
+                                            class="btn btn-danger btn-sm"
+                                            onclick="return confirm('Yakin ingin menghapus jadwal ini?')">
+                                        Hapus
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 </div>

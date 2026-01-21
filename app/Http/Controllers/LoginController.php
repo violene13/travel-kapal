@@ -5,45 +5,77 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\DB;
+use App\Models\User;
 use App\Models\Penumpang;
 
 class LoginController extends Controller
 {
-    /*
-    |--------------------------------------------------------------------------
-    | LOGIN FORM
-    |--------------------------------------------------------------------------
-    */
+    /* ================= LOGIN FORM ================= */
     public function showLoginForm()
     {
-        return redirect()->route('sealine.homes.index');
-    }
-
-    /*
-    |--------------------------------------------------------------------------
-    | REGISTER FORM
-    |--------------------------------------------------------------------------
-    */
-    public function showRegisterForm()
-    {
-        // hanya logout penumpang
-        if (Auth::guard('penumpang')->check()) {
-            Auth::guard('penumpang')->logout();
+        //  Kalau sudah login, jangan balik ke login
+        if (Auth::check()) {
+            return match (Auth::user()->role) {
+                'admin_travel'    => redirect()->route('admin.travel.dashboard'),
+                'admin_pelayaran' => redirect()->route('admin.pelayaran.dashboard'),
+                'penumpang'       => redirect()->route('sealine.homes.index'),
+                default           => abort(403),
+            };
         }
 
+        //  Pakai halaman home , modal login 
+        return redirect()->route('sealine.homes.index', ['login' => 1]);
+    }
+
+    /* ================= LOGIN MODAL ================= */
+public function loginModal(Request $request)
+{
+    return $this->login($request);
+}
+
+    /* ================= LOGIN PROCESS ================= */
+    public function login(Request $request)
+    {
+        $request->validate([
+            'username' => 'required',
+            'password' => 'required',
+        ]);
+
+        if (Auth::attempt([
+            filter_var($request->username, FILTER_VALIDATE_EMAIL)
+                ? 'email'
+                : 'name' => $request->username,
+            'password' => $request->password
+        ])) {
+
+            $request->session()->regenerate();
+            $user = Auth::user();
+
+            return match ($user->role) {
+                'admin_travel'    => redirect()->route('admin.travel.dashboard'),
+                'admin_pelayaran' => redirect()->route('admin.pelayaran.dashboard'),
+                'penumpang'       => redirect()->route('sealine.homes.index'),
+                default           => abort(403),
+            };
+        }
+
+        return back()->withErrors([
+            'login_error' => 'Username / Email atau Password salah'
+        ]);
+    }
+
+    /* ================= REGISTER PENUMPANG ================= */
+    public function showRegisterForm()
+    {
         return view('sealine.register.index');
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | REGISTER PENUMPANG
-    |--------------------------------------------------------------------------
-    */
     public function register(Request $request)
     {
         $request->validate([
             'name'     => 'required|string|max:100',
-            'email'    => 'required|email|unique:penumpang,email',
+            'email'    => 'required|email|unique:users,email',
             'password' => 'required|min:6|confirmed',
             'no_hp'    => 'required|string|max:20',
             'alamat'   => 'required|string|max:255',
@@ -61,95 +93,45 @@ class LoginController extends Controller
             $request->tanggal
         );
 
-        Penumpang::create([
-            'nama_penumpang' => $request->name,
-            'email'          => $request->email,
-            'password'       => Hash::make($request->password),
-            'no_hp'          => $request->no_hp,
-            'alamat'         => $request->alamat,
-            'no_ktp'         => $request->no_ktp,
-            'gender'         => $request->gender,
-            'tanggal_lahir'  => $tanggal_lahir,
-        ]);
+        DB::beginTransaction();
 
-        return redirect()->route('sealine.homes.index');
-    }
-
-    /*
-    |--------------------------------------------------------------------------
-    | LOGIN ADMIN & PENUMPANG
-    |--------------------------------------------------------------------------
-    */
-public function login(Request $request)
-{
-    $request->validate([
-        'username' => 'required',
-        'password' => 'required',
-    ]);
-
-    /*
-    |==================================================
-    | LOGIN ADMIN (GUARD WEB)
-    |==================================================
-    */
-     if (
-        Auth::guard('web')->attempt(
-            ['name' => $request->username, 'password' => $request->password]
-        ) ||
-        Auth::guard('web')->attempt(
-            ['email' => $request->username, 'password' => $request->password]
-        )
-    ) {
-        $request->session()->regenerate();
-
-        $admin = Auth::guard('web')->user();
-
-        // memastikan benar-benar admin
-        if (!in_array($admin->role, ['admin_travel', 'admin_pelayaran'])) {
-            Auth::guard('web')->logout();
-            return back()->withErrors([
-                'login_error' => 'Akses tidak valid'
+        try {
+            // USER LOGIN
+            $user = User::create([
+                'name'     => $request->name,
+                'email'    => $request->email,
+                'password' => Hash::make($request->password),
+                'role'     => 'penumpang',
             ]);
-        }
 
-        return match ($admin->role) {
-            'admin_travel'    => redirect()->route('admin.travel.dashboard'),
-            'admin_pelayaran' => redirect()->route('admin.pelayaran.dashboard'),
-        };
+            // DATA PENUMPANG
+            Penumpang::create([
+                'id_user'        => $user->id,
+                'nama_penumpang' => $request->name,
+                'email'          => $request->email,
+                'no_hp'          => $request->no_hp,
+                'alamat'         => $request->alamat,
+                'no_ktp'         => $request->no_ktp,
+                'gender'         => $request->gender,
+                'tanggal_lahir'  => $tanggal_lahir,
+            ]);
+
+            DB::commit();
+
+            return redirect()
+                ->route('sealine.homes.index')
+                ->with('success', 'Registrasi berhasil, silakan login');
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()->with('error', 'Registrasi gagal');
+        }
     }
 
-    /*
-    |==================================================
-    | LOGIN PENUMPANG (GUARD PENUMPANG)
-    |==================================================
-    */
-    if (filter_var($request->username, FILTER_VALIDATE_EMAIL)) {
-        if (
-            Auth::guard('penumpang')->attempt([
-                'email'    => $request->username,
-                'password' => $request->password
-            ])
-        ) {
-            $request->session()->regenerate();
-            return redirect()->route('sealine.homes.index');
-        }
-    }
-
-    return back()->withErrors([
-        'login_error' => 'Username / Email atau Password salah'
-    ]);
-}
-
-    /*
-    |--------------------------------------------------------------------------
-    | LOGOUT
-    |--------------------------------------------------------------------------
-    */
+    /* ================= LOGOUT ================= */
     public function logout(Request $request)
     {
-        Auth::guard('web')->logout();
-        Auth::guard('penumpang')->logout();
-
+        Auth::logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 

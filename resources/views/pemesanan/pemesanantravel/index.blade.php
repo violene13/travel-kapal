@@ -4,86 +4,93 @@
 
 @section('content')
 <div class="container mt-4">
+
     <div class="d-flex justify-content-between align-items-center mb-3">
         <h2 class="fw-bold text-primary mb-0">Daftar Pemesanan</h2>
         <a href="{{ route('pemesanan.pemesanantravel.create') }}" class="btn btn-primary">
-          Tambah Pemesanan
+            Tambah Pemesanan
         </a>
     </div>
 
     <div class="table-responsive">
-        <table id="pemesananTable" class="table table-striped table-bordered nowrap" style="width:100%">
-            <thead class="table-dark">
+        <table id="pemesananTable" class="table table-striped table-bordered nowrap w-100">
+            <thead class="table-dark text-center">
                 <tr>
-                    <th>ID Pesanan</th>
-                    <th>Nama Penumpang</th>
-                    <th>Tanggal Lahir</th>
-                    <th>Usia</th>
-                    <th>Jenis Kelamin</th>
-                    <th>No. HP</th>
+                    <th>ID</th>
+                    <th>Pemesan</th>
                     <th>Jadwal</th>
                     <th>Rute</th>
                     <th>Kapal</th>
                     <th>Kelas</th>
-                    <th>Harga Tiket</th>
+                    <th>Jml Pen</th>
+                    <th>Total Harga</th>
                     <th>Status</th>
                     <th>Aksi</th>
                 </tr>
             </thead>
+
             <tbody>
-                @foreach($pemesanan as $item)
+            @foreach($pemesanan as $item)
                 <tr>
-                    <td>#{{ str_pad($item->id_pemesanan, 5, '0', STR_PAD_LEFT) }}</td>
 
-                    <td>{{ $item->penumpang->nama_penumpang ?? '-' }}</td>
-
-                    <td>{{ $item->penumpang->tanggal_lahir ?? '-' }}</td>
-
-                    <td>
-                        @if(!empty($item->penumpang?->tanggal_lahir))
-                            {{ \Carbon\Carbon::parse($item->penumpang->tanggal_lahir)->age }} tahun
-                        @else
-                            -
-                        @endif
+                    {{-- ID --}}
+                    <td class="text-center fw-semibold">
+                        #{{ str_pad($item->id_pemesanan, 5, '0', STR_PAD_LEFT) }}
                     </td>
 
+                    {{-- PEMESAN --}}
                     <td>
-                        @if($item->penumpang?->gender === 'L')
-                            Laki-laki
-                        @elseif($item->penumpang?->gender === 'P')
-                            Perempuan
-                        @else
-                            -
-                        @endif
+                        {{ optional($item->penumpang)->nama_penumpang ?? '-' }}
+                        <br>
+                        <small class="text-muted">
+                            {{ optional($item->penumpang)->no_hp ?? '' }}
+                        </small>
                     </td>
 
-                    <td>{{ $item->penumpang->no_hp ?? '-' }}</td>
-
+                    {{-- JADWAL --}}
                     <td>
                         @if($item->jadwal)
-                            {{ \Carbon\Carbon::parse($item->jadwal->tanggal_berangkat)->translatedFormat('d M Y') }}<br>
-                            <small>{{ $item->jadwal->jam_berangkat }} - {{ $item->jadwal->jam_tiba }}</small>
+                            {{ \Carbon\Carbon::parse($item->jadwal->tanggal_berangkat)->translatedFormat('d M Y') }}
+                            <br>
+                            <small class="text-muted">
+                                {{ $item->jadwal->jam_berangkat }} - {{ $item->jadwal->jam_tiba }}
+                            </small>
                         @else
                             -
                         @endif
                     </td>
 
-                    <td>{{ $item->jadwal->jalur->rute ?? '-' }}</td>
+                    {{-- RUTE --}}
+                    <td>{{ optional(optional($item->jadwal)->jalur)->rute ?? '-' }}</td>
 
-                    <td>{{ $item->jadwal->kapal->nama_kapal ?? '-' }}</td>
+                    {{-- KAPAL --}}
+                    <td>{{ optional(optional($item->jadwal)->kapal)->nama_kapal ?? '-' }}</td>
 
-                    <td>{{ $item->jadwal->kelas ?? '-' }}</td>
+                    {{-- KELAS --}}
+                    <td class="text-center">
+                        {{ $item->detailPenumpang->pluck('kelas')->unique()->implode(', ') ?: '-' }}
+                    </td>
 
-                    <td>Rp {{ number_format($item->jadwal->harga ?? 0, 0, ',', '.') }}</td>
+                    {{-- JUMLAH PENUMPANG --}}
+                    <td class="text-center">
+                        <span class="badge bg-info">
+                            {{ $item->detailPenumpang->count() }} org
+                        </span>
+                    </td>
 
-                    <td>
-                        <div class="status-wrapper" data-id="{{ $item->id_pemesanan }}">
+                    {{-- TOTAL --}}
+                    <td class="text-end fw-bold text-success">
+                        Rp {{ number_format($item->total_harga ?? 0, 0, ',', '.') }}
+                    </td>
 
-                            <span class="status-badge badge
-                                @if($item->status == 'Confirmed') bg-success
-                                @elseif($item->status == 'Cancelled') bg-danger
+                    {{-- STATUS --}}
+                    <td class="text-center">
+                        <div class="status-wrapper">
+                            <span class="badge
+                                @if($item->status === 'Confirmed') bg-success
+                                @elseif($item->status === 'Cancelled') bg-danger
                                 @else bg-warning text-dark @endif
-                            " style="cursor:pointer;">
+                                status-badge" style="cursor:pointer">
                                 {{ $item->status }}
                             </span>
 
@@ -91,35 +98,36 @@
                                   method="POST" class="status-form d-none">
                                 @csrf
                                 @method('PATCH')
-
                                 <select name="status" class="form-select form-select-sm status-select">
-                                    <option value="Pending"   {{ $item->status === 'Pending' ? 'selected' : '' }}>Pending</option>
-                                    <option value="Confirmed" {{ $item->status === 'Confirmed' ? 'selected' : '' }}>Confirmed</option>
-                                    <option value="Cancelled" {{ $item->status === 'Cancelled' ? 'selected' : '' }}>Cancelled</option>
+                                    <option value="Pending" {{ $item->status=='Pending'?'selected':'' }}>Pending</option>
+                                    <option value="Confirmed" {{ $item->status=='Confirmed'?'selected':'' }}>Confirmed</option>
+                                    <option value="Cancelled" {{ $item->status=='Cancelled'?'selected':'' }}>Cancelled</option>
                                 </select>
                             </form>
-
                         </div>
                     </td>
 
-                    <td class="text-nowrap">
+                    {{-- AKSI --}}
+                    <td class="text-nowrap text-center">
                         <a href="{{ route('pemesanan.pemesanantravel.show', $item->id_pemesanan) }}" class="btn btn-info btn-sm">
                             <i class="bi bi-eye"></i>
                         </a>
                         <a href="{{ route('pemesanan.pemesanantravel.edit', $item->id_pemesanan) }}" class="btn btn-warning btn-sm">
                             <i class="bi bi-pencil"></i>
                         </a>
-                        <form action="{{ route('pemesanan.pemesanantravel.destroy', $item->id_pemesanan) }}" method="POST" class="d-inline">
+                        <form action="{{ route('pemesanan.pemesanantravel.destroy', $item->id_pemesanan) }}"
+                              method="POST" class="d-inline">
                             @csrf
                             @method('DELETE')
-                            <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Yakin hapus pesanan ini?')">
+                            <button class="btn btn-danger btn-sm"
+                                    onclick="return confirm('Yakin hapus data ini?')">
                                 <i class="bi bi-trash"></i>
                             </button>
                         </form>
                     </td>
 
                 </tr>
-                @endforeach
+            @endforeach
             </tbody>
         </table>
     </div>
@@ -128,35 +136,26 @@
 
 @push('scripts')
 <script>
-$(document).ready(function() {
+$(function () {
     $('#pemesananTable').DataTable({
         scrollX: true,
         autoWidth: false,
-        responsive: false,
-        columnDefs: [
-            { targets: '_all', className: 'text-nowrap align-middle' }
-        ],
         language: {
             url: '//cdn.datatables.net/plug-ins/1.13.6/i18n/id.json'
         }
     });
-});
 
+    document.querySelectorAll('.status-wrapper').forEach(wrapper => {
+        let badge = wrapper.querySelector('.status-badge');
+        let form = wrapper.querySelector('.status-form');
+        let select = wrapper.querySelector('.status-select');
 
-document.addEventListener("DOMContentLoaded", function () {
-    document.querySelectorAll(".status-wrapper").forEach(function (wrapper) {
-        let badge = wrapper.querySelector(".status-badge");
-        let form = wrapper.querySelector(".status-form");
-        let select = wrapper.querySelector(".status-select");
-
-        badge.addEventListener("click", function () {
-            badge.classList.add("d-none");
-            form.classList.remove("d-none");
+        badge.addEventListener('click', () => {
+            badge.classList.add('d-none');
+            form.classList.remove('d-none');
         });
 
-        select.addEventListener("change", function () {
-            form.submit();
-        });
+        select.addEventListener('change', () => form.submit());
     });
 });
 </script>

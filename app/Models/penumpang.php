@@ -3,21 +3,20 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Database\Eloquent\Model;
 
-class Penumpang extends Authenticatable
+class Penumpang extends Model
 {
     use HasFactory;
 
     protected $table = 'penumpang';
     protected $primaryKey = 'id_penumpang';
-    public $timestamps = false;
 
     protected $fillable = [
+        'id_user',
         'nama_penumpang',
         'email',
         'foto',
-        'password',
         'no_hp',
         'alamat',
         'no_ktp',
@@ -25,13 +24,12 @@ class Penumpang extends Authenticatable
         'tanggal_lahir',
     ];
 
-    protected $hidden = [
-        'password',
-    ];
+    /* ================= RELATION ================= */
 
-    public function getRememberToken() { return null; }
-    public function setRememberToken($value) { }
-    public function getRememberTokenName() { return null; }
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'id_user', 'id');
+    }
 
     public function pemesanan()
     {
